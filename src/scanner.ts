@@ -6,6 +6,7 @@ export class JapaneseScanner {
 	plugin: JapaneseDictionary;
 	app: App;
 	lastScannedText: string | null = null;
+	timer: number | null = null;
 
 	constructor(plugin: JapaneseDictionary) {
 		this.plugin = plugin;
@@ -13,6 +14,16 @@ export class JapaneseScanner {
 	}
 
 	handleHover = (evt: MouseEvent) => {
+		if (this.timer) {
+			clearTimeout(this.timer);
+		}
+
+		this.timer = window.setTimeout(() => {
+			this.performScan(evt);
+		}, 150);
+	};
+
+	private performScan(evt: MouseEvent) {
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
 		if (!range) return;
 
@@ -34,7 +45,7 @@ export class JapaneseScanner {
 			const fullText = node.textContent || "";
 			this.runScanner(fullText, offset);
 		}
-	};
+	}
 
 	private getRubyBaseText(rubyElem: HTMLElement): string {
 		let text = "";
