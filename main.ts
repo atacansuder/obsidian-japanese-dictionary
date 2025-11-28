@@ -8,7 +8,7 @@ import {
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
-import { handleHover } from "src/scanner";
+import { handleHover, JapaneseScanner } from "src/scanner";
 
 // Remember to rename these classes and interfaces!
 
@@ -22,6 +22,7 @@ const DEFAULT_SETTINGS: MyPluginSettings = {
 
 export default class MyPlugin extends Plugin {
 	settings: MyPluginSettings;
+	scanner: JapaneseScanner;
 
 	async onload() {
 		await this.loadSettings();
@@ -94,7 +95,8 @@ export default class MyPlugin extends Plugin {
 			window.setInterval(() => console.log("setInterval"), 5 * 60 * 1000)
 		);
 
-		this.registerDomEvent(document, "mousemove", handleHover);
+		this.scanner = new JapaneseScanner(this);
+		this.registerDomEvent(document, "mousemove", this.scanner.handleHover);
 	}
 
 	onunload() {}
