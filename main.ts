@@ -1,21 +1,10 @@
-import {
-	App,
-	Editor,
-	MarkdownView,
-	Modal,
-	Notice,
-	Plugin,
-	PluginSettingTab,
-	Setting,
-} from "obsidian";
+import { Plugin } from "obsidian";
 import { JapaneseScanner } from "src/scanner";
 import {
 	DEFAULT_SETTINGS,
 	MyPluginSettings,
 	SampleSettingTab,
 } from "src/settings";
-
-// Remember to rename these classes and interfaces!
 
 export default class JapaneseDictionary extends Plugin {
 	settings: MyPluginSettings;
@@ -24,7 +13,6 @@ export default class JapaneseDictionary extends Plugin {
 	async onload() {
 		await this.loadSettings();
 
-		// This adds a settings tab so the user can configure various aspects of the plugin
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
 		this.scanner = new JapaneseScanner(this);
