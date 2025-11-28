@@ -6,7 +6,7 @@ import {
 	SampleSettingTab,
 } from "src/settings";
 
-export default class JapaneseDictionary extends Plugin {
+export default class JapanesePopupDictionary extends Plugin {
 	settings: MyPluginSettings;
 	scanner: JapaneseScanner;
 

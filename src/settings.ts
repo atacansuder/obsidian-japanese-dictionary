@@ -1,4 +1,4 @@
-import JapaneseDictionary from "main";
+import JapanesePopupDictionary from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
 
 export interface MyPluginSettings {
@@ -10,9 +10,9 @@ export const DEFAULT_SETTINGS: MyPluginSettings = {
 };
 
 export class SampleSettingTab extends PluginSettingTab {
-	plugin: JapaneseDictionary;
+	plugin: JapanesePopupDictionary;
 
-	constructor(app: App, plugin: JapaneseDictionary) {
+	constructor(app: App, plugin: JapanesePopupDictionary) {
 		super(app, plugin);
 		this.plugin = plugin;
 	}

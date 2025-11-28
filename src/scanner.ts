@@ -1,14 +1,14 @@
 import { App } from "obsidian";
-import JapaneseDictionary from "../main";
+import JapanesePopupDictionary from "../main";
 import { isJapanese } from "./utils";
 
 export class JapaneseScanner {
-	plugin: JapaneseDictionary;
+	plugin: JapanesePopupDictionary;
 	app: App;
 	lastScannedText: string | null = null;
 	timer: number | null = null;
 
-	constructor(plugin: JapaneseDictionary) {
+	constructor(plugin: JapanesePopupDictionary) {
 		this.plugin = plugin;
 		this.app = plugin.app;
 	}
