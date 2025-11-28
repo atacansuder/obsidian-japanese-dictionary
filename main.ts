@@ -8,7 +8,7 @@ import {
 	PluginSettingTab,
 	Setting,
 } from "obsidian";
-import { handleHover, JapaneseScanner } from "src/scanner";
+import { JapaneseScanner } from "src/scanner";
 
 // Remember to rename these classes and interfaces!
 
