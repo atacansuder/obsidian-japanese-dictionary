@@ -20,12 +20,15 @@ export class JapaneseScanner {
 
 		this.timer = window.setTimeout(() => {
 			this.performScan(evt);
-		}, 150);
+		}, 50);
 	};
 
 	private performScan(evt: MouseEvent) {
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
-		if (!range) return;
+		if (!range) {
+			this.clearHighlight();
+			return;
+		}
 
 		let node = range.startContainer;
 		let offset = range.startOffset;
@@ -37,13 +40,13 @@ export class JapaneseScanner {
 		) {
 			const rubyElem = node.parentElement;
 			const cleanText = this.getRubyBaseText(rubyElem);
-			this.runScanner(cleanText, 0);
+			this.runScanner(node, cleanText, 0);
 			return;
 		}
 
 		if (node.nodeType === Node.TEXT_NODE) {
 			const fullText = node.textContent || "";
-			this.runScanner(fullText, offset);
+			this.runScanner(node, fullText, offset);
 		}
 	}
 
@@ -62,9 +65,10 @@ export class JapaneseScanner {
 		return text;
 	}
 
-	private runScanner(text: string, startOffset: number) {
+	private runScanner(node: Node, text: string, startOffset: number) {
 		const limit = 20;
 		const textToScan = text.substring(startOffset, startOffset + limit);
+		const endOffset = Math.min(startOffset + limit, text.length);
 
 		if (this.lastScannedText === textToScan) return;
 
@@ -73,7 +77,24 @@ export class JapaneseScanner {
 			console.log("Scanner sees:", textToScan);
 			console.log("My setting is:", this.plugin.settings.mySetting);
 
+			this.highlightText(node, startOffset, endOffset);
 			// TODO: this.showPopup(textToScan);
+		} else {
+			this.clearHighlight();
 		}
+	}
+
+	private highlightText(node: Node, startOffset: number, endOffset: number) {
+		const range = new Range();
+		range.setStart(node, startOffset);
+		range.setEnd(node, endOffset);
+
+		const highlight = new Highlight(range);
+		CSS.highlights.set("japanese-highlight", highlight);
+	}
+
+	private clearHighlight() {
+		CSS.highlights.delete("japanese-highlight");
+		this.lastScannedText = null;
 	}
 }
