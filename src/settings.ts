@@ -56,7 +56,11 @@ export class SampleSettingTab extends PluginSettingTab {
 				button
 					.setButtonText("Import dictionary")
 					.setCta()
-					.onClick(() => {});
+					.onClick(async () => {
+						await this.plugin.importer.importDictionary(
+							this.plugin.settings.selectedLanguageCode
+						);
+					});
 			});
 	}
 }

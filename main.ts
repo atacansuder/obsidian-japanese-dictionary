@@ -1,6 +1,7 @@
 import { Plugin } from "obsidian";
 import { DictionaryImporter } from "src/importer";
 import { JapaneseScanner } from "src/scanner";
+import { DictionaryManager } from "src/manager";
 import {
 	DEFAULT_SETTINGS,
 	JapanesePopupDictionarySettings,
@@ -11,11 +12,18 @@ export default class JapanesePopupDictionary extends Plugin {
 	settings: JapanesePopupDictionarySettings;
 	scanner: JapaneseScanner;
 	importer: DictionaryImporter;
+	dictionaryManager: DictionaryManager;
 
 	async onload() {
 		await this.loadSettings();
 
-		this.importer = new DictionaryImporter(this.app, this.manifest.dir!);
+		this.dictionaryManager = new DictionaryManager();
+
+		this.importer = new DictionaryImporter(
+			this.app,
+			this.manifest.dir!,
+			this.dictionaryManager
+		);
 
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 

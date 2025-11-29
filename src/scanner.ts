@@ -23,7 +23,7 @@ export class JapaneseScanner {
 		}, 50);
 	};
 
-	private performScan(evt: MouseEvent) {
+	private async performScan(evt: MouseEvent) {
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
 		if (!range) {
 			this.clearHighlight();
@@ -61,13 +61,13 @@ export class JapaneseScanner {
 		) {
 			const rubyElem = node.parentElement;
 			const cleanText = this.getRubyBaseText(rubyElem);
-			this.runScanner(node, cleanText, 0);
+			await this.runScanner(node, cleanText, 0);
 			return;
 		}
 
 		if (node.nodeType === Node.TEXT_NODE) {
 			const fullText = node.textContent || "";
-			this.runScanner(node, fullText, offset);
+			await this.runScanner(node, fullText, offset);
 		}
 	}
 
@@ -86,7 +86,7 @@ export class JapaneseScanner {
 		return text;
 	}
 
-	private runScanner(node: Node, text: string, startOffset: number) {
+	private async runScanner(node: Node, text: string, startOffset: number) {
 		const limit = 20;
 		const textToScan = text.substring(startOffset, startOffset + limit);
 		const endOffset = Math.min(startOffset + limit, text.length);
@@ -98,6 +98,9 @@ export class JapaneseScanner {
 			console.log("Scanner sees:", textToScan);
 
 			this.highlightText(node, startOffset, endOffset);
+			const wordData = await this.plugin.dictionaryManager.lookup(
+				textToScan
+			);
 			// TODO: this.showPopup(textToScan);
 		} else {
 			this.clearHighlight();
