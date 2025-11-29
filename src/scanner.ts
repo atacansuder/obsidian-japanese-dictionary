@@ -34,7 +34,14 @@ export class JapaneseScanner {
 		let offset = range.startOffset;
 
 		// Handle RUBY tags
+		// If hovering over RT, ignore it because it's just the pronunciation
 		if (
+			node.nodeType === Node.TEXT_NODE &&
+			node.parentElement?.tagName === "RT"
+		) {
+			this.clearHighlight();
+			return;
+		} else if (
 			node.nodeType === Node.TEXT_NODE &&
 			node.parentElement?.tagName === "RUBY"
 		) {
@@ -75,7 +82,6 @@ export class JapaneseScanner {
 		if (isJapanese(textToScan)) {
 			this.lastScannedText = textToScan;
 			console.log("Scanner sees:", textToScan);
-			console.log("My setting is:", this.plugin.settings.mySetting);
 
 			this.highlightText(node, startOffset, endOffset);
 			// TODO: this.showPopup(textToScan);
