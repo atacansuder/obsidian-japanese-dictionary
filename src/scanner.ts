@@ -23,7 +23,7 @@ export class JapaneseScanner {
 		}, 50);
 	};
 
-	private async performScan(evt: MouseEvent) {
+	private performScan(evt: MouseEvent) {
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
 		if (!range) {
 			this.clearHighlight();
@@ -61,13 +61,13 @@ export class JapaneseScanner {
 		) {
 			const rubyElem = node.parentElement;
 			const cleanText = this.getRubyBaseText(rubyElem);
-			await this.runScanner(node, cleanText, 0);
+			this.runScanner(node, cleanText, 0);
 			return;
 		}
 
 		if (node.nodeType === Node.TEXT_NODE) {
 			const fullText = node.textContent || "";
-			await this.runScanner(node, fullText, offset);
+			this.runScanner(node, fullText, offset);
 		}
 	}
 
