@@ -2,12 +2,12 @@ import { Plugin } from "obsidian";
 import { JapaneseScanner } from "src/scanner";
 import {
 	DEFAULT_SETTINGS,
-	MyPluginSettings,
+	JapanesePopupDictionarySettings,
 	SampleSettingTab,
 } from "src/settings";
 
 export default class JapanesePopupDictionary extends Plugin {
-	settings: MyPluginSettings;
+	settings: JapanesePopupDictionarySettings;
 	scanner: JapaneseScanner;
 
 	async onload() {

@@ -1,12 +1,13 @@
 import JapanesePopupDictionary from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
+import { LANGUAGE_OPTIONS } from "./types";
 
-export interface MyPluginSettings {
-	mySetting: string;
+export interface JapanesePopupDictionarySettings {
+	selectedLanguageCode: string;
 }
 
-export const DEFAULT_SETTINGS: MyPluginSettings = {
-	mySetting: "default",
+export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
+	selectedLanguageCode: LANGUAGE_OPTIONS[0].code,
 };
 
 export class SampleSettingTab extends PluginSettingTab {
@@ -23,16 +24,19 @@ export class SampleSettingTab extends PluginSettingTab {
 		containerEl.empty();
 
 		new Setting(containerEl)
-			.setName("Setting #1")
-			.setDesc("It's a secret")
-			.addText((text) =>
-				text
-					.setPlaceholder("Enter your secret")
-					.setValue(this.plugin.settings.mySetting)
+			.setName("Target language")
+			.setDesc("Select the language for dictionary lookups.")
+			.addDropdown((dropdown) => {
+				LANGUAGE_OPTIONS.forEach((option) => {
+					dropdown.addOption(option.code, option.label);
+				});
+
+				dropdown
+					.setValue(this.plugin.settings.selectedLanguageCode)
 					.onChange(async (value) => {
-						this.plugin.settings.mySetting = value;
+						this.plugin.settings.selectedLanguageCode = value;
 						await this.plugin.saveSettings();
-					})
-			);
+					});
+			});
 	}
 }
