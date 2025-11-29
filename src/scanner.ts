@@ -33,6 +33,20 @@ export class JapaneseScanner {
 		let node = range.startContainer;
 		let offset = range.startOffset;
 
+		// Make sure we are inside a note
+		const parentElement =
+			node.nodeType === Node.TEXT_NODE
+				? node.parentElement
+				: (node as HTMLElement);
+		if (
+			!parentElement ||
+			(!parentElement.closest(".markdown-preview-view") &&
+				!parentElement.closest(".markdown-source-view"))
+		) {
+			this.clearHighlight();
+			return;
+		}
+
 		// Handle RUBY tags
 		// If hovering over RT, ignore it because it's just the pronunciation
 		if (
@@ -91,6 +105,8 @@ export class JapaneseScanner {
 	}
 
 	private highlightText(node: Node, startOffset: number, endOffset: number) {
+		if (!node.isConnected) return;
+
 		const range = new Range();
 		range.setStart(node, startOffset);
 		range.setEnd(node, endOffset);
