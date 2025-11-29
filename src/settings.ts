@@ -38,5 +38,25 @@ export class SampleSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
+		new Setting(containerEl)
+			.setName("Import dictionary")
+			.setDesc(
+				'Open the plugin folder to add your dictionary files and click the "Import dictionary" button to import it.'
+			)
+			.addExtraButton((button) => {
+				button
+					.setIcon("folder-open")
+					.setTooltip("Open plugin folder")
+					.onClick(() => {
+						this.plugin.importer.openPluginFolder();
+					});
+			})
+			.addButton((button) => {
+				button
+					.setButtonText("Import dictionary")
+					.setCta()
+					.onClick(() => {});
+			});
 	}
 }
