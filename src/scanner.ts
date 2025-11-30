@@ -39,6 +39,7 @@ export class JapaneseScanner {
 	};
 
 	private performScan(evt: MouseEvent) {
+		// This is called range, but its start and end offsets are the same value so its length is 0 basically
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
 		if (!range) {
 			this.clearHighlight();
@@ -56,6 +57,7 @@ export class JapaneseScanner {
 		}
 
 		// Make sure we are inside a note
+		// Node is the generic category, could be text or element
 		const parentElement =
 			node.nodeType === Node.TEXT_NODE
 				? node.parentElement
