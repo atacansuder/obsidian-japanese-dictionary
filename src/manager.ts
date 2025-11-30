@@ -57,7 +57,6 @@ export class DictionaryManager {
 		const db = await this.getDB();
 
 		const candidates = this.deinflector.deinflect(term);
-		console.log(candidates);
 		const resultsMap = new Map<string, JMDictWord>();
 
 		for (const candidate of candidates) {
@@ -85,8 +84,6 @@ export class DictionaryManager {
 				});
 			}
 		}
-
-		console.log("Lookup results:", Array.from(resultsMap.values()));
 
 		return Array.from(resultsMap.values());
 	}

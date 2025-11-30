@@ -5,7 +5,7 @@ import { isJapanese } from "./utils";
 export class JapaneseScanner {
 	plugin: JapanesePopupDictionary;
 	app: App;
-	lastScannedText: string | null = null;
+	currentHighlightRange: Range | null = null;
 	timer: number | null = null;
 
 	constructor(plugin: JapanesePopupDictionary) {
@@ -14,13 +14,28 @@ export class JapaneseScanner {
 	}
 
 	handleHover = (evt: MouseEvent) => {
+		if (this.currentHighlightRange) {
+			const range = document.caretRangeFromPoint(
+				evt.clientX,
+				evt.clientY
+			);
+			if (range) {
+				const node = range.startContainer;
+				const offset = range.startOffset;
+
+				if (this.currentHighlightRange.isPointInRange(node, offset)) {
+					return;
+				}
+			}
+		}
+
 		if (this.timer) {
 			clearTimeout(this.timer);
 		}
 
 		this.timer = window.setTimeout(() => {
 			this.performScan(evt);
-		}, 50);
+		}, 100);
 	};
 
 	private performScan(evt: MouseEvent) {
@@ -32,6 +47,13 @@ export class JapaneseScanner {
 
 		let node = range.startContainer;
 		let offset = range.startOffset;
+
+		if (
+			this.currentHighlightRange &&
+			this.currentHighlightRange.isPointInRange(node, offset)
+		) {
+			return;
+		}
 
 		// Make sure we are inside a note
 		const parentElement =
@@ -99,7 +121,6 @@ export class JapaneseScanner {
 			);
 
 			if (wordData && wordData.length > 0) {
-				this.lastScannedText = currentText;
 				this.highlightText(node, startOffset, startOffset + i);
 				console.log("Found word data:", wordData, "for", currentText);
 
@@ -117,6 +138,7 @@ export class JapaneseScanner {
 		const range = new Range();
 		range.setStart(node, startOffset);
 		range.setEnd(node, endOffset);
+		this.currentHighlightRange = range;
 
 		const highlight = new Highlight(range);
 		CSS.highlights.set("japanese-highlight", highlight);
@@ -124,6 +146,6 @@ export class JapaneseScanner {
 
 	private clearHighlight() {
 		CSS.highlights.delete("japanese-highlight");
-		this.lastScannedText = null;
+		this.currentHighlightRange = null;
 	}
 }
