@@ -1,5 +1,6 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
 import { JMDictKana, JMDictKanji, JMDictSense, JMDictWord } from "./types";
+import { Deinflector } from "./deinflector";
 
 export interface JMDictDB extends DBSchema {
 	entries: {
@@ -28,8 +29,11 @@ export interface JMDictDB extends DBSchema {
 
 export class DictionaryManager {
 	private db: IDBPDatabase<JMDictDB> | null = null;
+	private deinflector: Deinflector;
 
-	constructor() {}
+	constructor() {
+		this.deinflector = new Deinflector();
+	}
 
 	async getDB(): Promise<IDBPDatabase<JMDictDB>> {
 		if (this.db) return this.db;
@@ -52,22 +56,38 @@ export class DictionaryManager {
 	async lookup(term: string): Promise<JMDictWord[]> {
 		const db = await this.getDB();
 
-		const kanjiResults = await db.getAllFromIndex("entries", "kanji", term);
-		const kanaResults = await db.getAllFromIndex("entries", "kana", term);
+		const candidates = this.deinflector.deinflect(term);
+		console.log(candidates);
+		const resultsMap = new Map<string, JMDictWord>();
 
-		// Deduplicate results based on ID
-		const resultsMap = new Map<string, (typeof kanjiResults)[0]>();
-		[...kanjiResults, ...kanaResults].forEach((entry) => {
-			resultsMap.set(entry.id, entry);
-		});
+		for (const candidate of candidates) {
+			const kanjiResults = await db.getAllFromIndex(
+				"entries",
+				"kanji",
+				candidate.term
+			);
+			const kanaResults = await db.getAllFromIndex(
+				"entries",
+				"kana",
+				candidate.term
+			);
 
-		console.log(resultsMap);
+			const entries = [...kanjiResults, ...kanaResults];
 
-		return Array.from(resultsMap.values()).map((entry) => ({
-			id: entry.id,
-			kanji: entry.kanjiData,
-			kana: entry.kanaData,
-			sense: entry.sense,
-		}));
+			for (const entry of entries) {
+				if (resultsMap.has(entry.id)) continue;
+
+				resultsMap.set(entry.id, {
+					id: entry.id,
+					kanji: entry.kanjiData,
+					kana: entry.kanaData,
+					sense: entry.sense,
+				});
+			}
+		}
+
+		console.log("Lookup results:", Array.from(resultsMap.values()));
+
+		return Array.from(resultsMap.values());
 	}
 }

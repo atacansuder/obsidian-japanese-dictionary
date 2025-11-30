@@ -88,23 +88,27 @@ export class JapaneseScanner {
 
 	private async runScanner(node: Node, text: string, startOffset: number) {
 		const limit = 20;
-		const textToScan = text.substring(startOffset, startOffset + limit);
-		const endOffset = Math.min(startOffset + limit, text.length);
+		const availableLength = text.length - startOffset;
+		const scanLength = Math.min(limit, availableLength);
 
-		if (this.lastScannedText === textToScan) return;
-
-		if (isJapanese(textToScan)) {
-			this.lastScannedText = textToScan;
-			console.log("Scanner sees:", textToScan);
-
+		for (let i = scanLength; i > 0; i--) {
+			const currentText = text.substring(startOffset, startOffset + i);
+			if (!isJapanese(currentText)) continue;
 			const wordData = await this.plugin.dictionaryManager.lookup(
-				textToScan
+				currentText
 			);
-			this.highlightText(node, startOffset, endOffset);
-			// TODO: this.showPopup(textToScan);
-		} else {
-			this.clearHighlight();
+
+			if (wordData && wordData.length > 0) {
+				this.lastScannedText = currentText;
+				this.highlightText(node, startOffset, startOffset + i);
+				console.log("Found word data:", wordData, "for", currentText);
+
+				// TODO: this.showPopup(textToScan);
+				return;
+			}
 		}
+
+		this.clearHighlight();
 	}
 
 	private highlightText(node: Node, startOffset: number, endOffset: number) {
