@@ -97,10 +97,10 @@ export class JapaneseScanner {
 			this.lastScannedText = textToScan;
 			console.log("Scanner sees:", textToScan);
 
-			this.highlightText(node, startOffset, endOffset);
 			const wordData = await this.plugin.dictionaryManager.lookup(
 				textToScan
 			);
+			this.highlightText(node, startOffset, endOffset);
 			// TODO: this.showPopup(textToScan);
 		} else {
 			this.clearHighlight();
