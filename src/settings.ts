@@ -1,13 +1,17 @@
 import JapanesePopupDictionary from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { LANGUAGE_OPTIONS } from "./types";
+import { LANGUAGE_OPTIONS, TriggerKeys } from "./types";
 
 export interface JapanesePopupDictionarySettings {
 	selectedLanguageCode: string;
+	triggerKey: string;
+	isDictionaryOn: boolean;
 }
 
 export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
 	selectedLanguageCode: LANGUAGE_OPTIONS[0].code,
+	triggerKey: TriggerKeys.None,
+	isDictionaryOn: true,
 };
 
 export class SampleSettingTab extends PluginSettingTab {
@@ -40,6 +44,18 @@ export class SampleSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
+			.setName("Dictionary toggle")
+			.setDesc("Enable or disable the dictionary feature.")
+			.addToggle((toggle) => {
+				toggle
+					.setValue(this.plugin.settings.isDictionaryOn)
+					.onChange(async (value) => {
+						this.plugin.settings.isDictionaryOn = value;
+						await this.plugin.saveSettings();
+					});
+			});
+
+		new Setting(containerEl)
 			.setName("Import dictionary")
 			.setDesc(
 				'Open the plugin folder to add your dictionary files and click the "Import dictionary" button to import it.'
@@ -60,6 +76,24 @@ export class SampleSettingTab extends PluginSettingTab {
 						await this.plugin.importer.importDictionary(
 							this.plugin.settings.selectedLanguageCode
 						);
+					});
+			});
+
+		new Setting(containerEl)
+			.setName("Hover modifier key")
+			.setDesc(
+				"Hold this key while hovering to trigger the dictionary. (Use 'None' to always scan)."
+			)
+			.addDropdown((dropdown) => {
+				dropdown
+					.addOption(TriggerKeys.None, "None (Always active)")
+					.addOption(TriggerKeys.Ctrl, "Ctrl")
+					.addOption(TriggerKeys.Alt, "Alt")
+					.addOption(TriggerKeys.Shift, "Shift")
+					.setValue(this.plugin.settings.triggerKey)
+					.onChange(async (value) => {
+						this.plugin.settings.triggerKey = value;
+						await this.plugin.saveSettings();
 					});
 			});
 	}

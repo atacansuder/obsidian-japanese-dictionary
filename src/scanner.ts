@@ -1,6 +1,7 @@
 import { App } from "obsidian";
 import JapanesePopupDictionary from "../main";
 import { isJapanese } from "./utils";
+import { TriggerKeys } from "./types";
 
 export class JapaneseScanner {
 	plugin: JapanesePopupDictionary;
@@ -14,6 +15,22 @@ export class JapaneseScanner {
 	}
 
 	handleHover = (evt: MouseEvent) => {
+		const trigger = this.plugin.settings.triggerKey;
+		const isModifierHeld =
+			trigger === TriggerKeys.None ||
+			(trigger === TriggerKeys.Ctrl && evt.ctrlKey) ||
+			(trigger === TriggerKeys.Alt && evt.altKey) ||
+			(trigger === TriggerKeys.Shift && evt.shiftKey);
+
+		const isDictionaryOn = this.plugin.settings.isDictionaryOn;
+
+		const shouldScan = isModifierHeld && isDictionaryOn;
+
+		if (!shouldScan) {
+			this.clearHighlight();
+			return;
+		}
+
 		if (this.currentHighlightRange) {
 			const range = document.caretRangeFromPoint(
 				evt.clientX,

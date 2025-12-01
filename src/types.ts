@@ -62,3 +62,10 @@ export interface DictionaryData {
 	version: string;
 	words: JMDictWord[];
 }
+
+export enum TriggerKeys {
+	None = "None",
+	Ctrl = "Ctrl",
+	Alt = "Alt",
+	Shift = "Shift",
+}
