@@ -1,90 +1,90 @@
 import { openDB, DBSchema, IDBPDatabase } from "idb";
-import { JMDictKana, JMDictKanji, JMDictSense, JMDictWord } from "./types";
+import { ProcessedTerm, YomitanDB } from "./types";
 import { Deinflector } from "./deinflector";
 
-export interface JMDictDB extends DBSchema {
-	entries: {
-		key: string;
-		value: {
-			id: string;
-			kanji: string[];
-			kana: string[];
-			kanjiData: JMDictKanji[];
-			kanaData: JMDictKana[];
-			sense: JMDictSense[];
-		};
-		indexes: {
-			kanji: string;
-			kana: string;
-		};
-	};
-	metadata: {
-		key: string;
-		value: {
-			key: string;
-			value: string;
-		};
-	};
-}
-
 export class DictionaryManager {
-	private db: IDBPDatabase<JMDictDB> | null = null;
+	private db: IDBPDatabase<YomitanDB> | null = null;
 	private deinflector: Deinflector;
 
 	constructor() {
 		this.deinflector = new Deinflector();
 	}
 
-	async getDB(): Promise<IDBPDatabase<JMDictDB>> {
+	async getDB(): Promise<IDBPDatabase<YomitanDB>> {
 		if (this.db) return this.db;
 
-		this.db = await openDB<JMDictDB>("jmdict", 1, {
+		this.db = await openDB<YomitanDB>("yomitan-dict", 1, {
 			upgrade(db) {
-				const entryStore = db.createObjectStore("entries", {
-					keyPath: "id",
+				const termStore = db.createObjectStore("terms", {
+					autoIncrement: true,
 				});
-				entryStore.createIndex("kanji", "kanji", { multiEntry: true });
-				entryStore.createIndex("kana", "kana", { multiEntry: true });
+				termStore.createIndex("expression", "expression", {
+					unique: false,
+				});
+				termStore.createIndex("reading", "reading", { unique: false });
 
-				db.createObjectStore("metadata", { keyPath: "key" });
+				// Store for metadata about imported dictionaries
+				db.createObjectStore("dictionaries", { keyPath: "title" });
 			},
 		});
 
 		return this.db;
 	}
 
-	async lookup(term: string): Promise<JMDictWord[]> {
+	async lookup(text: string): Promise<ProcessedTerm[]> {
 		const db = await this.getDB();
-
-		const candidates = this.deinflector.deinflect(term);
-		const resultsMap = new Map<string, JMDictWord>();
+		const candidates = this.deinflector.deinflect(text);
+		const results: ProcessedTerm[] = [];
+		const seenSignatures = new Set<string>(); // To deduplicate exact matches from same dict
 
 		for (const candidate of candidates) {
-			const kanjiResults = await db.getAllFromIndex(
-				"entries",
-				"kanji",
-				candidate.term
+			const term = candidate.term;
+
+			const expressionMatches = await db.getAllFromIndex(
+				"terms",
+				"expression",
+				term
 			);
-			const kanaResults = await db.getAllFromIndex(
-				"entries",
-				"kana",
-				candidate.term
+			const readingMatches = await db.getAllFromIndex(
+				"terms",
+				"reading",
+				term
 			);
 
-			const entries = [...kanjiResults, ...kanaResults];
+			const rawMatches = [...expressionMatches, ...readingMatches];
 
-			for (const entry of entries) {
-				if (resultsMap.has(entry.id)) continue;
+			for (const match of rawMatches) {
+				if (!this.isValidDeinflection(candidate.rules, match.rules)) {
+					continue;
+				}
 
-				resultsMap.set(entry.id, {
-					id: entry.id,
-					kanji: entry.kanjiData,
-					kana: entry.kanaData,
-					sense: entry.sense,
-				});
+				const signature = `${match.expression}-${match.reading}-${match.dictionary}`;
+				if (seenSignatures.has(signature)) continue;
+				seenSignatures.add(signature);
+
+				results.push(match);
 			}
 		}
 
-		return Array.from(resultsMap.values());
+		return Array.from(results).sort((a, b) => b.score - a.score);
+	}
+
+	/**
+	 * Validates if the term found in the dictionary is compatible with the required rules set during deinflection.
+	 * @param deinflectRules The bitmask required by the deinflection step (0 if none required).
+	 * @param termRules The array of rule strings from the dictionary entry (e.g., ["v5r-i", "vi"]).
+	 * @returns True if the rules overlap or no rules are required, False otherwise.
+	 */
+	private isValidDeinflection(
+		deinflectRules: number,
+		termRules: string[]
+	): boolean {
+		if (deinflectRules === 0) return true;
+		const termRuleFlags = this.deinflector.getRuleFlags(termRules);
+
+		// Check for overlap.
+		// A bitwise AND (&) result that is non-zero means that at least one rule required by the deinflector
+		// is present in the term's actual rule flags (part-of-speech).
+		return (deinflectRules & termRuleFlags) !== 0;
 	}
 }

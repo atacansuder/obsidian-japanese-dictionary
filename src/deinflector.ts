@@ -24,15 +24,27 @@ const RULE_TYPES = new Map([
 	["iru", 0b01000000], // Intermediate -iru endings
 ]);
 
+type NormalizedVariant = [string, string, number, number];
+type NormalizedReason = [string, NormalizedVariant[]];
+
 // The logic here is adapted from Yomichan's deinflection code:
 // https://github.com/FooSoft/yomichan/blob/master/ext/js/language/deinflector.js
 export class Deinflector {
-	reasons: any[];
+	reasons: NormalizedReason[];
 
 	constructor() {
 		this.reasons = Deinflector.normalizeReasons(
 			DEINFLECT_DATA as unknown as Record<string, RawReason[]>
-		);
+		) as NormalizedReason[];
+	}
+
+	/**
+	 * Converts an array of rule strings (from dictionary entry or raw rule data) into a single bitmask number.
+	 * @param rules Array of rule strings (e.g., ["v5", "vi"]).
+	 * @returns Bitmask representing the combined rule flags.
+	 */
+	public getRuleFlags(rules: string[]): number {
+		return Deinflector.rulesToRuleFlags(rules);
 	}
 
 	deinflect(source: string): DeinflectionResult[] {

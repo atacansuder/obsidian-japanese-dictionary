@@ -11,7 +11,7 @@ declare global {
 		entries(): IterableIterator<AbstractRange>;
 		forEach(
 			callback: (range: AbstractRange, highlight: Highlight) => void,
-			thisArg?: any
+			thisArg?: unknown
 		): void;
 		has(range: AbstractRange): boolean;
 		keys(): IterableIterator<AbstractRange>;

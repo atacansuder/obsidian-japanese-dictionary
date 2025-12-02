@@ -148,15 +148,17 @@ export class JapaneseScanner {
 		for (let i = scanLength; i > 0; i--) {
 			const currentText = text.substring(startOffset, startOffset + i);
 			if (!isJapanese(currentText)) continue;
-			const wordData = await this.plugin.dictionaryManager.lookup(
+
+			const results = await this.plugin.dictionaryManager.lookup(
 				currentText
 			);
 
-			if (wordData && wordData.length > 0) {
+			if (results && results.length > 0) {
 				this.highlightText(node, startOffset, startOffset + i);
-				console.log("Found word data:", wordData, "for", currentText);
-
-				// TODO: this.showPopup(textToScan);
+				console.log(
+					`Found ${results.length} results for "${currentText}":`,
+					results
+				);
 				return;
 			}
 		}
