@@ -32,17 +32,24 @@ export class JapaneseScanner {
 		}
 
 		if (this.currentHighlightRange) {
-			const range = document.caretRangeFromPoint(
-				evt.clientX,
-				evt.clientY
-			);
-			if (range) {
-				const node = range.startContainer;
-				const offset = range.startOffset;
+			const rects = this.currentHighlightRange.getClientRects();
+			let isHoveringHighlight = false;
 
-				if (this.currentHighlightRange.isPointInRange(node, offset)) {
-					return;
+			for (let i = 0; i < rects.length; i++) {
+				const rect = rects[i];
+				if (
+					evt.clientX >= rect.left &&
+					evt.clientX <= rect.right &&
+					evt.clientY >= rect.top &&
+					evt.clientY <= rect.bottom
+				) {
+					isHoveringHighlight = true;
+					break;
 				}
+			}
+
+			if (isHoveringHighlight) {
+				return;
 			}
 		}
 
@@ -66,11 +73,17 @@ export class JapaneseScanner {
 		let node = range.startContainer;
 		let offset = range.startOffset;
 
-		if (
-			this.currentHighlightRange &&
-			this.currentHighlightRange.isPointInRange(node, offset)
-		) {
-			return;
+		if (this.currentHighlightRange) {
+			const isAtEndBoundary =
+				node === this.currentHighlightRange.endContainer &&
+				offset === this.currentHighlightRange.endOffset;
+
+			if (
+				this.currentHighlightRange.isPointInRange(node, offset) &&
+				!isAtEndBoundary
+			) {
+				return;
+			}
 		}
 
 		// Make sure we are inside a note
