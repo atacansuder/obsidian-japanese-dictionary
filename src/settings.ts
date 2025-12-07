@@ -1,15 +1,13 @@
 import JapanesePopupDictionary from "main";
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { LANGUAGE_OPTIONS, TriggerKeys } from "./types";
+import { TriggerKeys } from "./types";
 
 export interface JapanesePopupDictionarySettings {
-	selectedLanguageCode: string;
 	triggerKey: string;
 	isDictionaryOn: boolean;
 }
 
 export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
-	selectedLanguageCode: LANGUAGE_OPTIONS[0].code,
 	triggerKey: TriggerKeys.None,
 	isDictionaryOn: true,
 };
@@ -24,24 +22,7 @@ export class SampleSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
-
 		containerEl.empty();
-
-		new Setting(containerEl)
-			.setName("Target language")
-			.setDesc("Select the language for dictionary lookups.")
-			.addDropdown((dropdown) => {
-				LANGUAGE_OPTIONS.forEach((option) => {
-					dropdown.addOption(option.code, option.label);
-				});
-
-				dropdown
-					.setValue(this.plugin.settings.selectedLanguageCode)
-					.onChange(async (value) => {
-						this.plugin.settings.selectedLanguageCode = value;
-						await this.plugin.saveSettings();
-					});
-			});
 
 		new Setting(containerEl)
 			.setName("Dictionary toggle")
@@ -56,9 +37,9 @@ export class SampleSettingTab extends PluginSettingTab {
 			});
 
 		new Setting(containerEl)
-			.setName("Import dictionary")
+			.setName("Import Yomitan Dictionary")
 			.setDesc(
-				'Open the plugin folder to add your dictionary files and click the "Import dictionary" button to import it.'
+				"Open the plugin folder, place your Yomitan .zip file there, then click Import."
 			)
 			.addExtraButton((button) => {
 				button
@@ -70,20 +51,16 @@ export class SampleSettingTab extends PluginSettingTab {
 			})
 			.addButton((button) => {
 				button
-					.setButtonText("Import dictionary")
+					.setButtonText("Import .zip")
 					.setCta()
 					.onClick(async () => {
-						await this.plugin.importer.importDictionary(
-							this.plugin.settings.selectedLanguageCode
-						);
+						await this.plugin.importer.importDictionary();
 					});
 			});
 
 		new Setting(containerEl)
 			.setName("Hover modifier key")
-			.setDesc(
-				"Hold this key while hovering to trigger the dictionary. (Use 'None' to always scan)."
-			)
+			.setDesc("Hold this key while hovering to trigger.")
 			.addDropdown((dropdown) => {
 				dropdown
 					.addOption(TriggerKeys.None, "None (Always active)")
