@@ -1,17 +1,20 @@
 import { App } from "obsidian";
 import JapanesePopupDictionary from "../main";
 import { isJapanese } from "./utils";
-import { TriggerKeys } from "./types";
+import { ProcessedTerm, TriggerKeys } from "./types";
+import { PopupManager } from "./popup";
 
 export class JapaneseScanner {
 	plugin: JapanesePopupDictionary;
 	app: App;
 	currentHighlightRange: Range | null = null;
 	timer: number | null = null;
+	popupManager: PopupManager;
 
-	constructor(plugin: JapanesePopupDictionary) {
+	constructor(plugin: JapanesePopupDictionary, popupManager: PopupManager) {
 		this.plugin = plugin;
 		this.app = plugin.app;
+		this.popupManager = popupManager;
 	}
 
 	handleHover = (evt: MouseEvent) => {
@@ -154,7 +157,7 @@ export class JapaneseScanner {
 			);
 
 			if (results && results.length > 0) {
-				this.highlightText(node, startOffset, startOffset + i);
+				this.highlightText(node, startOffset, startOffset + i, results);
 				console.log(
 					`Found ${results.length} results for "${currentText}":`,
 					results
@@ -166,7 +169,12 @@ export class JapaneseScanner {
 		this.clearHighlight();
 	}
 
-	private highlightText(node: Node, startOffset: number, endOffset: number) {
+	private highlightText(
+		node: Node,
+		startOffset: number,
+		endOffset: number,
+		results: ProcessedTerm[]
+	) {
 		if (!node.isConnected) return;
 
 		const range = new Range();
@@ -176,6 +184,8 @@ export class JapaneseScanner {
 
 		const highlight = new Highlight(range);
 		CSS.highlights.set("japanese-highlight", highlight);
+
+		this.popupManager.showPopup(range.getBoundingClientRect(), results);
 	}
 
 	private clearHighlight() {

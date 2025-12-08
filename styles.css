@@ -3,3 +3,9 @@
 	color: black;
 	text-decoration: underline;
 }
+
+.japanese-dictionary-popup {
+	position: fixed;
+	width: 300px;
+	background-color: darkgreen;
+}
