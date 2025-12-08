@@ -35,4 +35,16 @@ export class PopupManager {
 		this.popupEl!.style.left = `${rect.left}px`;
 		this.popupEl!.innerHTML = JSON.stringify(terms, null, 2);
 	}
+
+	hidePopup() {
+		this.popupEl?.toggleVisibility(false);
+	}
+
+	isElementInsidePopup(target: Node): boolean {
+		return this.popupEl ? this.popupEl.contains(target) : false;
+	}
+
+	isOpen(): boolean {
+		return this.popupEl ? this.popupEl.style.display !== "none" : false;
+	}
 }

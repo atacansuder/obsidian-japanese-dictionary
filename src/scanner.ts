@@ -30,7 +30,6 @@ export class JapaneseScanner {
 		const shouldScan = isModifierHeld && isDictionaryOn;
 
 		if (!shouldScan) {
-			this.clearHighlight();
 			return;
 		}
 
@@ -69,7 +68,6 @@ export class JapaneseScanner {
 		// This is called range, but its start and end offsets are the same value so its length is 0 basically
 		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
 		if (!range) {
-			this.clearHighlight();
 			return;
 		}
 
@@ -100,7 +98,6 @@ export class JapaneseScanner {
 			(!parentElement.closest(".markdown-preview-view") &&
 				!parentElement.closest(".markdown-source-view"))
 		) {
-			this.clearHighlight();
 			return;
 		}
 
@@ -165,8 +162,6 @@ export class JapaneseScanner {
 				return;
 			}
 		}
-
-		this.clearHighlight();
 	}
 
 	private highlightText(
@@ -191,5 +186,18 @@ export class JapaneseScanner {
 	private clearHighlight() {
 		CSS.highlights.delete("japanese-highlight");
 		this.currentHighlightRange = null;
+		this.popupManager.hidePopup();
 	}
+
+	handleDocumentClick = (evt: MouseEvent) => {
+		if (!this.popupManager.isOpen()) return;
+
+		const target = evt.target as Node;
+
+		if (this.popupManager.isElementInsidePopup(target)) {
+			return;
+		}
+
+		this.clearHighlight();
+	};
 }
