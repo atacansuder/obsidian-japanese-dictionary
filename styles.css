@@ -9,3 +9,25 @@
 	width: 300px;
 	background-color: darkgreen;
 }
+
+.popup-term {
+	padding: 10px;
+
+	.popup-term-header {
+		.popup-term-expression {
+			display: inline;
+			font-size: 2em;
+			margin-right: 5px;
+		}
+		.popup-term-frequency-tags {
+			display: inline;
+			> span {
+				border-radius: 0.25rem;
+				padding: 1px 5px;
+				background-color: #4490a7;
+				font-weight: bold;
+				margin-right: 5px;
+			}
+		}
+	}
+}
