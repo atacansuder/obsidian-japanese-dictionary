@@ -35,7 +35,6 @@ export class DictionaryManager {
 		const db = await this.getDB();
 		const candidates = this.deinflector.deinflect(text);
 		const results: ProcessedTerm[] = [];
-		const seenSignatures = new Set<string>(); // To deduplicate exact matches from same dict
 
 		for (const candidate of candidates) {
 			const term = candidate.term;
@@ -58,15 +57,11 @@ export class DictionaryManager {
 					continue;
 				}
 
-				const signature = `${match.expression}-${match.reading}-${match.dictionary}`;
-				if (seenSignatures.has(signature)) continue;
-				seenSignatures.add(signature);
-
 				results.push(match);
 			}
 		}
 
-		return Array.from(results).sort((a, b) => b.score - a.score);
+		return results.sort((a, b) => b.score - a.score);
 	}
 
 	/**
@@ -80,11 +75,12 @@ export class DictionaryManager {
 		termRules: string[]
 	): boolean {
 		if (deinflectRules === 0) return true;
-		const termRuleFlags = this.deinflector.getRuleFlags(termRules);
 
-		// Check for overlap.
-		// A bitwise AND (&) result that is non-zero means that at least one rule required by the deinflector
-		// is present in the term's actual rule flags (part-of-speech).
+		const termRuleFlags = this.deinflector.getRuleFlags(termRules);
+		// If the term has no rules but deinflection requires rules, reject
+		if (termRuleFlags === 0) return false;
+
+		// Check for overlap, at least one required rule must be present
 		return (deinflectRules & termRuleFlags) !== 0;
 	}
 }
