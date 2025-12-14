@@ -48,7 +48,6 @@ export interface ProcessedTerm {
 	score: number;
 	glossary: RawDefinition[];
 	dictionary: string; // To know which dict it came from
-	termTags: string[];
 }
 
 export interface YomitanDB extends DBSchema {

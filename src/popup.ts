@@ -94,10 +94,13 @@ export class PopupManager {
 
 			// Add frequency tags if available from the first term in the group
 			const firstTerm = groupTerms[0];
-			if (firstTerm.termTags.length > 0) {
+			if (
+				firstTerm.glossary[2] &&
+				typeof firstTerm.glossary[2] === "string"
+			) {
 				const tags = document.createElement("div");
 				tags.addClass("popup-term-frequency-tags");
-				firstTerm.termTags.forEach((tag) => {
+				firstTerm.glossary[2].split(" ").forEach((tag) => {
 					const tagEl = this.createTagElement(tag);
 					tags.appendChild(tagEl);
 				});
