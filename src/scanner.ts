@@ -155,10 +155,6 @@ export class JapaneseScanner {
 
 			if (results && results.length > 0) {
 				this.highlightText(node, startOffset, startOffset + i, results);
-				console.log(
-					`Found ${results.length} results for "${currentText}":`,
-					results
-				);
 				return;
 			}
 		}

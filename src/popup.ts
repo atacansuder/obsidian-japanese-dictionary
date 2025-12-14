@@ -1,5 +1,5 @@
 import { App } from "obsidian";
-import { ProcessedTerm, RawDefinition, StructuredContent } from "./types";
+import { ProcessedTerm, StructuredContent } from "./types";
 
 export class PopupManager {
 	private app: App;
@@ -33,6 +33,7 @@ export class PopupManager {
 		this.popupEl!.empty();
 		const contentFragment = this.renderTerms(terms);
 		this.popupEl!.appendChild(contentFragment);
+
 		this.popupEl!.style.top = `${rect.bottom}px`;
 		this.popupEl!.style.left = `${rect.left}px`;
 		this.popupEl?.toggleVisibility(true);
@@ -53,9 +54,6 @@ export class PopupManager {
 	private renderTerms(terms: ProcessedTerm[]): DocumentFragment {
 		const fragment = document.createDocumentFragment();
 
-		// This is useful to prioritize terms where the expression matches the reading,
-		// for example particle に (at/in/on) is prioritized over 二 (two)
-		// otherwise sort by scoring
 		terms.sort((a, b) => {
 			const aMatches = a.expression === a.reading;
 			const bMatches = b.expression === b.reading;
@@ -67,7 +65,6 @@ export class PopupManager {
 		const groups = this.groupTermsByExpressionReading(terms);
 
 		groups.forEach((groupTerms, key) => {
-			console.log("Rendering group for key:", key, groupTerms);
 			const termContainer = document.createElement("div");
 			termContainer.addClass("popup-term");
 
@@ -90,7 +87,6 @@ export class PopupManager {
 				header.appendChild(ruby);
 			}
 
-			// Add frequency tags if available from the first term in the group
 			const firstTerm = groupTerms[0];
 			if (
 				firstTerm.glossary[2] &&
@@ -98,7 +94,8 @@ export class PopupManager {
 			) {
 				const tags = document.createElement("div");
 				tags.addClass("popup-term-frequency-tags");
-				firstTerm.glossary[2].split(" ").forEach((tag) => {
+				const tagText = firstTerm.glossary[2] as string;
+				tagText.split(" ").forEach((tag) => {
 					const tagEl = this.createTagElement(tag);
 					tags.appendChild(tagEl);
 				});
@@ -109,61 +106,85 @@ export class PopupManager {
 
 			const definitionsList = document.createElement("ol");
 			definitionsList.addClass("popup-term-definitions");
+
 			groupTerms.forEach((term) => {
-				const definitionItem = document.createElement("li");
-				const definition = term.glossary[0][0];
-				console.log(definition);
+				// Only pass the first element of glossary. Others are frequency tags and scores
+				const contentNode = this.renderStructuredContent(
+					term.glossary[0]
+				);
+				if (contentNode) {
+					const li = document.createElement("li");
+					li.appendChild(contentNode);
+					definitionsList.appendChild(li);
+				}
 			});
 
+			termContainer.appendChild(definitionsList);
 			fragment.appendChild(termContainer);
 		});
 
-		/* terms.forEach((term) => {
-			const termContainer = document.createElement("div");
-			termContainer.addClass("popup-term");
-
-			const header = document.createElement("div");
-			header.addClass("popup-term-header");
-
-			// Add the expression as the main header element
-			const expressionText = document.createElement("div");
-			expressionText.addClass("popup-term-expression");
-			if (term.expression === term.reading) {
-				const textHeader = document.createElement("span");
-				textHeader.textContent = term.expression;
-				expressionText.appendChild(textHeader);
-			} else {
-				const ruby = document.createElement("ruby");
-				ruby.textContent = term.expression;
-				const rt = document.createElement("rt");
-				rt.textContent = term.reading;
-				ruby.appendChild(rt);
-				expressionText.appendChild(ruby);
-			}
-			header.appendChild(expressionText);
-
-			// Add frequency tags if available
-			if (term.glossary[2] && typeof term.glossary[2] === "string") {
-				const tags = document.createElement("div");
-				tags.addClass("popup-term-frequency-tags");
-				term.glossary[2].split(" ").forEach((tag) => {
-					const tagEl = this.createTagElement(tag);
-					tags.appendChild(tagEl);
-				});
-				header.appendChild(tags);
-			}
-
-			termContainer.appendChild(header);
-			fragment.appendChild(termContainer);
-		}); */
-
 		return fragment;
+	}
+
+	private renderStructuredContent(
+		content:
+			| string
+			| number
+			| StructuredContent
+			| (string | StructuredContent)[]
+	): Node | DocumentFragment | null {
+		if (typeof content === "string" || typeof content === "number") {
+			// If string is empty, return null so we don't create empty list items
+			if (String(content).trim() === "") return null;
+			return document.createTextNode(String(content));
+		}
+
+		if (Array.isArray(content)) {
+			const frag = document.createDocumentFragment();
+			content.forEach((item) => {
+				const childNode = this.renderStructuredContent(item);
+				if (childNode) {
+					frag.appendChild(childNode);
+				}
+			});
+			return frag.childNodes.length > 0 ? frag : null;
+		}
+
+		const sc = content as StructuredContent;
+
+		// Filtering out tables for now for simplicity (normally they are used for different forms, like "nihongo" vs "nippongo")
+		if (
+			sc.tag === "table" ||
+			sc.tag === "tr" ||
+			sc.tag === "td" ||
+			sc.tag === "th"
+		) {
+			return null;
+		}
+
+		const tagName = sc.tag || "span";
+		const element = document.createElement(tagName);
+
+		if (sc.lang) element.lang = sc.lang;
+
+		if (sc.content) {
+			const children = this.renderStructuredContent(sc.content);
+			if (children) {
+				element.appendChild(children);
+			}
+		}
+
+		if (element.childNodes.length === 0 && !element.textContent) {
+			return null;
+		}
+
+		return element;
 	}
 
 	private createTagElement(tag: string): HTMLElement {
 		const tagEl = document.createElement("span");
 		tagEl.textContent = tag;
-		tagEl.title = tag; // TODO: Replace with full tag description if available
+		tagEl.addClass("popup-tag");
 		return tagEl;
 	}
 
