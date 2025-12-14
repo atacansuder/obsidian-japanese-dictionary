@@ -55,10 +55,60 @@ export class PopupManager {
 
 		// This is useful to prioritize terms where the expression matches the reading,
 		// for example particle に (at/in/on) is prioritized over 二 (two)
-		terms.sort((a, b) => (a.expression === a.reading ? -1 : 0));
+		// otherwise sort by scoring
+		terms.sort((a, b) => {
+			const aMatches = a.expression === a.reading;
+			const bMatches = b.expression === b.reading;
+			if (aMatches && !bMatches) return -1;
+			if (!aMatches && bMatches) return 1;
+			return b.score - a.score;
+		});
 		console.log("Sorted Terms:", terms);
 
-		terms.forEach((term) => {
+		const groups = this.groupTermsByExpressionReading(terms);
+		console.log("Grouped Terms:", groups);
+
+		groups.forEach((groupTerms, key) => {
+			console.log("Rendering group for key:", key, groupTerms);
+			const termContainer = document.createElement("div");
+			termContainer.addClass("popup-term");
+
+			const header = document.createElement("div");
+			header.addClass("popup-term-header");
+
+			const [expression, reading] = key.split("|");
+			if (expression === reading) {
+				const textHeader = document.createElement("span");
+				textHeader.textContent = expression;
+				textHeader.addClass("popup-term-expression");
+				header.appendChild(textHeader);
+			} else {
+				const ruby = document.createElement("ruby");
+				ruby.textContent = expression;
+				const rt = document.createElement("rt");
+				rt.textContent = reading;
+				ruby.appendChild(rt);
+				ruby.addClass("popup-term-expression");
+				header.appendChild(ruby);
+			}
+
+			// Add frequency tags if available from the first term in the group
+			const firstTerm = groupTerms[0];
+			if (firstTerm.termTags.length > 0) {
+				const tags = document.createElement("div");
+				tags.addClass("popup-term-frequency-tags");
+				firstTerm.termTags.forEach((tag) => {
+					const tagEl = this.createTagElement(tag);
+					tags.appendChild(tagEl);
+				});
+				header.appendChild(tags);
+			}
+
+			termContainer.appendChild(header);
+			fragment.appendChild(termContainer);
+		});
+
+		/* terms.forEach((term) => {
 			const termContainer = document.createElement("div");
 			termContainer.addClass("popup-term");
 
@@ -95,7 +145,7 @@ export class PopupManager {
 
 			termContainer.appendChild(header);
 			fragment.appendChild(termContainer);
-		});
+		}); */
 
 		return fragment;
 	}
@@ -105,5 +155,23 @@ export class PopupManager {
 		tagEl.textContent = tag;
 		tagEl.title = tag; // TODO: Replace with full tag description if available
 		return tagEl;
+	}
+
+	private groupTermsByExpressionReading(
+		terms: ProcessedTerm[]
+	): Map<string, ProcessedTerm[]> {
+		const groups = new Map<string, ProcessedTerm[]>();
+
+		for (const term of terms) {
+			const key = `${term.expression}|${term.reading}`;
+			const existing = groups.get(key);
+			if (existing) {
+				existing.push(term);
+			} else {
+				groups.set(key, [term]);
+			}
+		}
+
+		return groups;
 	}
 }
