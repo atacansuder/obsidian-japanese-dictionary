@@ -63,10 +63,8 @@ export class PopupManager {
 			if (!aMatches && bMatches) return 1;
 			return b.score - a.score;
 		});
-		console.log("Sorted Terms:", terms);
 
 		const groups = this.groupTermsByExpressionReading(terms);
-		console.log("Grouped Terms:", groups);
 
 		groups.forEach((groupTerms, key) => {
 			console.log("Rendering group for key:", key, groupTerms);
@@ -108,6 +106,15 @@ export class PopupManager {
 			}
 
 			termContainer.appendChild(header);
+
+			const definitionsList = document.createElement("ol");
+			definitionsList.addClass("popup-term-definitions");
+			groupTerms.forEach((term) => {
+				const definitionItem = document.createElement("li");
+				const definition = term.glossary[0][0];
+				console.log(definition);
+			});
+
 			fragment.appendChild(termContainer);
 		});
 

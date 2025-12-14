@@ -38,7 +38,7 @@ export interface StructuredContent {
 	type?: string;
 }
 
-export type RawDefinition = string | StructuredContent;
+export type RawDefinition = string | StructuredContent[];
 
 export interface ProcessedTerm {
 	expression: string;
