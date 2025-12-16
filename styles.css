@@ -11,6 +11,7 @@
 	border: 1px solid var(--background-modifier-border-hover);
 	border-radius: var(--radius-s);
 	overflow-y: scroll;
+	z-index: var(--layer-popover);
 }
 
 .popup-term {
