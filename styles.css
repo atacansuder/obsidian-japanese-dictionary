@@ -1,15 +1,16 @@
 ::highlight(japanese-highlight) {
-	background-color: gold;
-	color: black;
+	background-color: var(--text-highlight-bg);
 	text-decoration: underline;
 }
 
 .japanese-dictionary-popup {
 	position: fixed;
-	width: 300px;
+	width: calc(var(--popover-width) * 3 / 4);
+	max-height: var(--popover-height);
 	background-color: var(--background-primary-alt);
 	border: 1px solid var(--background-modifier-border-hover);
 	border-radius: var(--radius-s);
+	overflow-y: scroll;
 }
 
 .popup-term {
@@ -19,7 +20,8 @@
 		display: flex;
 
 		.popup-term-expression {
-			font-size: 2em;
+			font-size: var(--h1-size);
+			line-height: var(--h1-line-height);
 			margin-right: var(--size-4-1);
 		}
 		.popup-term-frequency-tags {
