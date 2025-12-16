@@ -38,4 +38,10 @@
 			}
 		}
 	}
+
+	.popup-term-definitions {
+		> li ul {
+			padding-left: var(--size-4-4);
+		}
+	}
 }

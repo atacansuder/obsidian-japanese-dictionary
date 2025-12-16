@@ -114,7 +114,24 @@ export class PopupManager {
 				);
 				if (contentNode) {
 					const li = document.createElement("li");
-					li.appendChild(contentNode);
+					const termListItemContainer = document.createElement("div");
+
+					// Add term tags (for example "n" for noun)
+					const termTagsContainer = document.createElement("div");
+					termTagsContainer.addClass("popup-term-list-item-tags");
+
+					term.tags.forEach((tag) => {
+						const tagEl = this.createTagElement(tag);
+						termTagsContainer.appendChild(tagEl);
+					});
+
+					if (termTagsContainer.childNodes.length > 0) {
+						termListItemContainer.appendChild(termTagsContainer);
+					}
+
+					termListItemContainer.appendChild(contentNode);
+
+					li.appendChild(termListItemContainer);
 					definitionsList.appendChild(li);
 				}
 			});
