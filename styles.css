@@ -7,23 +7,32 @@
 .japanese-dictionary-popup {
 	position: fixed;
 	width: 300px;
-	background-color: darkgreen;
+	background-color: var(--background-primary-alt);
+	border: 1px solid var(--background-modifier-border-hover);
+	border-radius: var(--radius-s);
 }
 
 .popup-term {
-	padding: 10px;
+	padding: var(--size-4-2);
 
 	.popup-term-header {
 		display: flex;
 
 		.popup-term-expression {
 			font-size: 2em;
-			margin-right: 5px;
+			margin-right: var(--size-4-1);
 		}
 		.popup-term-frequency-tags {
 			margin-top: auto;
-			> span:not(:first-child) {
-				margin-left: 5px;
+			> span {
+				background-color: var(--interactive-hover);
+				padding: 0 var(--size-4-1);
+				border-radius: var(--radius-s);
+				font-weight: var(--font-semibold);
+
+				&:not(:first-child) {
+					margin-left: var(--size-4-1);
+				}
 			}
 		}
 	}
