@@ -27,22 +27,26 @@
 		}
 		.popup-term-frequency-tags {
 			margin-top: auto;
-			> span {
-				background-color: var(--interactive-hover);
-				padding: 0 var(--size-4-1);
-				border-radius: var(--radius-s);
-				font-weight: var(--font-semibold);
-
-				&:not(:first-child) {
-					margin-left: var(--size-4-1);
-				}
-			}
 		}
 	}
 
 	.popup-term-definitions {
-		> li ul {
-			padding-left: var(--size-4-4);
+		> li {
+			margin-bottom: var(--size-4-2);
+			ul {
+				padding-left: var(--size-4-4);
+			}
+		}
+	}
+
+	.popup-tag {
+		background-color: var(--interactive-hover);
+		padding: 0 var(--size-4-1);
+		border-radius: var(--radius-s);
+		font-weight: var(--font-semibold);
+
+		&:not(:first-child) {
+			margin-left: var(--size-4-1);
 		}
 	}
 }
