@@ -114,7 +114,10 @@ export class PopupManager {
 							definitionsList.createEl("li", {}, (li) => {
 								li.createDiv({}, (termListItemContainer) => {
 									// Add term tags (for example "n" for noun)
-									if (term.tags.length > 0) {
+									if (
+										term.tags.length > 0 &&
+										term.tags[0] !== ""
+									) {
 										termListItemContainer.createDiv(
 											{
 												cls: "popup-term-list-item-tags",
