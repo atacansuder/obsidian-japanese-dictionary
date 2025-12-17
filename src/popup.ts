@@ -11,11 +11,11 @@ export class PopupManager {
 	}
 
 	private createPopup() {
-		this.popupEl = document.createElement("div");
-		this.popupEl.id = "japanese-dictionary-popup";
-		this.popupEl.addClass("japanese-dictionary-popup");
-		this.popupEl.toggleVisibility(false);
-		document.body.appendChild(this.popupEl);
+		this.popupEl = document.body.createDiv({
+			cls: "japanese-dictionary-popup",
+			attr: { id: "japanese-dictionary-popup" },
+		});
+		this.popupEl.hide();
 	}
 
 	destroyPopup() {
@@ -31,16 +31,15 @@ export class PopupManager {
 		}
 
 		this.popupEl!.empty();
-		const contentFragment = this.renderTerms(terms);
-		this.popupEl!.appendChild(contentFragment);
+		this.renderTerms(this.popupEl!, terms);
 
 		this.popupEl!.style.top = `${rect.bottom}px`;
 		this.popupEl!.style.left = `${rect.left}px`;
-		this.popupEl?.toggleVisibility(true);
+		this.popupEl?.show();
 	}
 
 	hidePopup() {
-		this.popupEl?.toggleVisibility(false);
+		this.popupEl?.hide();
 	}
 
 	isElementInsidePopup(target: Node): boolean {
@@ -51,9 +50,7 @@ export class PopupManager {
 		return this.popupEl ? this.popupEl.style.display !== "none" : false;
 	}
 
-	private renderTerms(terms: ProcessedTerm[]): DocumentFragment {
-		const fragment = document.createDocumentFragment();
-
+	private renderTerms(container: HTMLElement, terms: ProcessedTerm[]) {
 		terms.sort((a, b) => {
 			const aMatches = a.expression === a.reading;
 			const bMatches = b.expression === b.reading;
@@ -65,106 +62,110 @@ export class PopupManager {
 		const groups = this.groupTermsByExpressionReading(terms);
 
 		groups.forEach((groupTerms, key) => {
-			const termContainer = document.createElement("div");
-			termContainer.addClass("popup-term");
-
-			const header = document.createElement("div");
-			header.addClass("popup-term-header");
-
-			const [expression, reading] = key.split("|");
-			if (expression === reading) {
-				const textHeader = document.createElement("span");
-				textHeader.textContent = expression;
-				textHeader.addClass("popup-term-expression");
-				header.appendChild(textHeader);
-			} else {
-				const ruby = document.createElement("ruby");
-				ruby.textContent = expression;
-				const rt = document.createElement("rt");
-				rt.textContent = reading;
-				ruby.appendChild(rt);
-				ruby.addClass("popup-term-expression");
-				header.appendChild(ruby);
-			}
-
-			const firstTerm = groupTerms[0];
-			if (
-				firstTerm.glossary[2] &&
-				typeof firstTerm.glossary[2] === "string"
-			) {
-				const tags = document.createElement("div");
-				tags.addClass("popup-term-frequency-tags");
-				const tagText = firstTerm.glossary[2] as string;
-				tagText.split(" ").forEach((tag) => {
-					const tagEl = this.createTagElement(tag);
-					tags.appendChild(tagEl);
+			container.createDiv({ cls: "popup-term" }, (termContainer) => {
+				const header = termContainer.createDiv({
+					cls: "popup-term-header",
 				});
-				header.appendChild(tags);
-			}
 
-			termContainer.appendChild(header);
-
-			const definitionsList = document.createElement("ol");
-			definitionsList.addClass("popup-term-definitions");
-
-			groupTerms.forEach((term) => {
-				// Only pass the first element of glossary. Others are frequency tags and scores
-				const contentNode = this.renderStructuredContent(
-					term.glossary[0]
-				);
-				if (contentNode) {
-					const li = document.createElement("li");
-					const termListItemContainer = document.createElement("div");
-
-					// Add term tags (for example "n" for noun)
-					const termTagsContainer = document.createElement("div");
-					termTagsContainer.addClass("popup-term-list-item-tags");
-
-					term.tags.forEach((tag) => {
-						const tagEl = this.createTagElement(tag);
-						termTagsContainer.appendChild(tagEl);
+				const [expression, reading] = key.split("|");
+				if (expression === reading) {
+					header.createSpan({
+						text: expression,
+						cls: "popup-term-expression",
 					});
-
-					if (termTagsContainer.childNodes.length > 0) {
-						termListItemContainer.appendChild(termTagsContainer);
-					}
-
-					termListItemContainer.appendChild(contentNode);
-
-					li.appendChild(termListItemContainer);
-					definitionsList.appendChild(li);
+				} else {
+					header.createEl(
+						"ruby",
+						{ cls: "popup-term-expression" },
+						(ruby) => {
+							ruby.createSpan({ text: expression });
+							ruby.createEl("rt", { text: reading });
+						}
+					);
 				}
+
+				const firstTerm = groupTerms[0];
+				if (
+					firstTerm.glossary[2] &&
+					typeof firstTerm.glossary[2] === "string"
+				) {
+					header.createDiv(
+						{ cls: "popup-term-frequency-tags" },
+						(tags) => {
+							const tagText = firstTerm.glossary[2] as string;
+							tagText.split(" ").forEach((tag) => {
+								tags.createSpan({
+									text: tag,
+									cls: "popup-tag",
+								});
+							});
+						}
+					);
+				}
+
+				termContainer.createEl(
+					"ol",
+					{ cls: "popup-term-definitions" },
+					(definitionsList) => {
+						groupTerms.forEach((term) => {
+							// Only pass the first element of glossary. Others are frequency tags and scores
+							const content = term.glossary[0];
+
+							definitionsList.createEl("li", {}, (li) => {
+								li.createDiv({}, (termListItemContainer) => {
+									// Add term tags (for example "n" for noun)
+									if (term.tags.length > 0) {
+										termListItemContainer.createDiv(
+											{
+												cls: "popup-term-list-item-tags",
+											},
+											(termTagsContainer) => {
+												term.tags.forEach((tag) => {
+													termTagsContainer.createSpan(
+														{
+															text: tag,
+															cls: "popup-tag",
+														}
+													);
+												});
+											}
+										);
+									}
+
+									this.renderStructuredContent(
+										termListItemContainer,
+										content
+									);
+								});
+							});
+						});
+					}
+				);
 			});
-
-			termContainer.appendChild(definitionsList);
-			fragment.appendChild(termContainer);
 		});
-
-		return fragment;
 	}
 
 	private renderStructuredContent(
+		container: HTMLElement,
 		content:
 			| string
 			| number
 			| StructuredContent
 			| (string | StructuredContent)[]
-	): Node | DocumentFragment | null {
+	) {
 		if (typeof content === "string" || typeof content === "number") {
-			// If string is empty, return null so we don't create empty list items
-			if (String(content).trim() === "") return null;
-			return document.createTextNode(String(content));
+			const text = String(content).trim();
+			if (text !== "") {
+				container.appendText(text);
+			}
+			return;
 		}
 
 		if (Array.isArray(content)) {
-			const frag = document.createDocumentFragment();
 			content.forEach((item) => {
-				const childNode = this.renderStructuredContent(item);
-				if (childNode) {
-					frag.appendChild(childNode);
-				}
+				this.renderStructuredContent(container, item);
 			});
-			return frag.childNodes.length > 0 ? frag : null;
+			return;
 		}
 
 		const sc = content as StructuredContent;
@@ -176,33 +177,20 @@ export class PopupManager {
 			sc.tag === "td" ||
 			sc.tag === "th"
 		) {
-			return null;
+			return;
 		}
 
 		const tagName = sc.tag || "span";
-		const element = document.createElement(tagName);
 
-		if (sc.lang) element.lang = sc.lang;
-
-		if (sc.content) {
-			const children = this.renderStructuredContent(sc.content);
-			if (children) {
-				element.appendChild(children);
+		container.createEl(
+			tagName as keyof HTMLElementTagNameMap,
+			{ attr: sc.lang ? { lang: sc.lang } : undefined },
+			(element) => {
+				if (sc.content) {
+					this.renderStructuredContent(element, sc.content);
+				}
 			}
-		}
-
-		if (element.childNodes.length === 0 && !element.textContent) {
-			return null;
-		}
-
-		return element;
-	}
-
-	private createTagElement(tag: string): HTMLElement {
-		const tagEl = document.createElement("span");
-		tagEl.textContent = tag;
-		tagEl.addClass("popup-tag");
-		return tagEl;
+		);
 	}
 
 	private groupTermsByExpressionReading(
