@@ -34,7 +34,8 @@ export class DictionaryManager {
 	async lookup(text: string): Promise<ProcessedTerm[]> {
 		const db = await this.getDB();
 		const candidates = this.deinflector.deinflect(text);
-		const results: ProcessedTerm[] = [];
+
+		const uniqueResults = new Map<string, ProcessedTerm>();
 
 		for (const candidate of candidates) {
 			const term = candidate.term;
@@ -56,12 +57,19 @@ export class DictionaryManager {
 				if (!this.isValidDeinflection(candidate.rules, match.rules)) {
 					continue;
 				}
+				const signature = `${match.expression}-${
+					match.reading
+				}-${JSON.stringify(match.glossary)}`;
 
-				results.push(match);
+				if (!uniqueResults.has(signature)) {
+					uniqueResults.set(signature, match);
+				}
 			}
 		}
 
-		return results.sort((a, b) => b.score - a.score);
+		return Array.from(uniqueResults.values()).sort(
+			(a, b) => b.score - a.score
+		);
 	}
 
 	/**
