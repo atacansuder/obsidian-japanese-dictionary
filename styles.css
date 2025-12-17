@@ -12,6 +12,7 @@
 	border-radius: var(--radius-s);
 	overflow-y: scroll;
 	z-index: var(--layer-popover);
+	user-select: text;
 }
 
 .popup-term {
