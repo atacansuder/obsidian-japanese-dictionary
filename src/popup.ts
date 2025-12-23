@@ -117,6 +117,8 @@ export class PopupManager {
 							// Only pass the first element of glossary. Others are frequency tags and scores
 							const content = term.glossary[0];
 
+							const isForms = term.tags.includes("forms");
+
 							definitionsList.createEl("li", {}, (li) => {
 								li.createDiv({}, (termListItemContainer) => {
 									// Add term tags (for example "n" for noun)
@@ -141,10 +143,32 @@ export class PopupManager {
 										);
 									}
 
-									this.renderStructuredContent(
-										termListItemContainer,
-										content
-									);
+									// If it is a "forms" tag and the content is an array, render as a list
+									if (isForms && Array.isArray(content)) {
+										termListItemContainer.createEl(
+											"ul",
+											{ cls: "popup-term-forms-list" },
+											(ul) => {
+												content.forEach((formItem) => {
+													ul.createEl(
+														"li",
+														{},
+														(formLi) => {
+															this.renderStructuredContent(
+																formLi,
+																formItem
+															);
+														}
+													);
+												});
+											}
+										);
+									} else {
+										this.renderStructuredContent(
+											termListItemContainer,
+											content
+										);
+									}
 								});
 							});
 						});
