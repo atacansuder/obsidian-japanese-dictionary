@@ -193,7 +193,10 @@ export class PopupManager {
 
 		container.createEl(
 			tagName as keyof HTMLElementTagNameMap,
-			{ attr: sc.lang ? { lang: sc.lang } : undefined },
+			{
+				attr: sc.lang ? { lang: sc.lang } : undefined,
+				cls: "popup-term-link",
+			},
 			(element) => {
 				if (sc.content) {
 					if (sc.tag === "a") {
