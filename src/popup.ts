@@ -1,12 +1,12 @@
-import { App } from "obsidian";
+import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
 
 export class PopupManager {
-	private app: App;
+	private dictionaryManager: DictionaryManager;
 	private popupEl: HTMLElement | null = null;
 
-	constructor(app: App) {
-		this.app = app;
+	constructor(dictionaryManager: DictionaryManager) {
+		this.dictionaryManager = dictionaryManager;
 		this.createPopup();
 	}
 
@@ -30,8 +30,7 @@ export class PopupManager {
 			this.createPopup();
 		}
 
-		this.popupEl!.empty();
-		this.renderTerms(this.popupEl!, terms);
+		this.updatePopupContent(terms);
 
 		this.popupEl!.style.top = `${rect.bottom}px`;
 		this.popupEl!.style.left = `${rect.left}px`;
@@ -48,6 +47,13 @@ export class PopupManager {
 
 	isOpen(): boolean {
 		return this.popupEl ? this.popupEl.style.display !== "none" : false;
+	}
+
+	private updatePopupContent(terms: ProcessedTerm[]) {
+		if (!this.popupEl) return;
+		this.popupEl.empty();
+		this.renderTerms(this.popupEl, terms);
+		this.popupEl.scrollTop = 0;
 	}
 
 	private renderTerms(container: HTMLElement, terms: ProcessedTerm[]) {
@@ -190,6 +196,15 @@ export class PopupManager {
 			{ attr: sc.lang ? { lang: sc.lang } : undefined },
 			(element) => {
 				if (sc.content) {
+					if (sc.tag === "a") {
+						element.addEventListener("click", async (e) => {
+							e.preventDefault();
+							const res = await this.dictionaryManager.lookup(
+								sc.content as string
+							);
+							this.updatePopupContent(res);
+						});
+					}
 					this.renderStructuredContent(element, sc.content);
 				}
 			}

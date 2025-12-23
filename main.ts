@@ -29,7 +29,7 @@ export default class JapanesePopupDictionary extends Plugin {
 
 		this.addSettingTab(new SampleSettingTab(this.app, this));
 
-		this.popupManager = new PopupManager(this.app);
+		this.popupManager = new PopupManager(this.dictionaryManager);
 		this.scanner = new JapaneseScanner(this, this.popupManager);
 		this.registerDomEvent(document, "mousemove", this.scanner.handleHover);
 		this.registerDomEvent(
