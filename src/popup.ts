@@ -103,6 +103,11 @@ export class PopupManager {
 								tags.createSpan({
 									text: tag,
 									cls: "popup-tag",
+									attr: {
+										title: this.dictionaryManager.getTagDescription(
+											tag
+										),
+									},
 								});
 							});
 						}
@@ -136,6 +141,11 @@ export class PopupManager {
 														{
 															text: tag,
 															cls: "popup-tag",
+															attr: {
+																title: this.dictionaryManager.getTagDescription(
+																	tag
+																),
+															},
 														}
 													);
 												});

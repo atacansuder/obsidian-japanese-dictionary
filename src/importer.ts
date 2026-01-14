@@ -7,6 +7,8 @@ import {
 	YomitanIndex,
 	ProcessedTerm,
 	RawDefinition,
+	RawTagEntry,
+	TagDefinition,
 } from "./types";
 
 export class DictionaryImporter {
@@ -127,6 +129,37 @@ export class DictionaryImporter {
 			await tx.done;
 			console.log(`Processed batch: ${filename}`);
 		}
+
+		const tagFiles = Object.keys(zip.files).filter(
+			(filename) =>
+				filename.startsWith("tag_bank_") && filename.endsWith(".json")
+		);
+
+		if (tagFiles.length > 0) {
+			for (const filename of tagFiles) {
+				const file = zip.file(filename);
+				if (!file) continue;
+
+				const content = await file.async("string");
+				const rawTags: RawTagEntry[] = JSON.parse(content);
+
+				const txTags = db.transaction("tag_defs", "readwrite");
+				const tagStore = txTags.objectStore("tag_defs");
+
+				for (const entry of rawTags) {
+					const tagDef: TagDefinition = {
+						name: entry[0],
+						category: entry[1],
+						description: entry[3],
+					};
+					tagStore.put(tagDef);
+				}
+
+				await txTags.done;
+			}
+		}
+
+		await this.dictionaryManager.loadTags();
 
 		console.log(`Imported ${processedCount} terms from ${meta.title}`);
 	}

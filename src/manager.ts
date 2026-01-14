@@ -5,6 +5,7 @@ import { Deinflector } from "./deinflector";
 export class DictionaryManager {
 	private db: IDBPDatabase<YomitanDB> | null = null;
 	private deinflector: Deinflector;
+	private tagCache: Map<string, string> = new Map();
 
 	constructor() {
 		this.deinflector = new Deinflector();
@@ -25,6 +26,8 @@ export class DictionaryManager {
 
 				// Store for metadata about imported dictionaries
 				db.createObjectStore("dictionaries", { keyPath: "title" });
+
+				db.createObjectStore("tag_defs", { keyPath: "name" });
 			},
 		});
 
@@ -90,5 +93,21 @@ export class DictionaryManager {
 
 		// Check for overlap, at least one required rule must be present
 		return (deinflectRules & termRuleFlags) !== 0;
+	}
+
+	async loadTags() {
+		if (!this.db) return;
+		const tx = this.db.transaction("tag_defs", "readonly");
+		const store = tx.objectStore("tag_defs");
+		let cursor = await store.openCursor();
+
+		while (cursor) {
+			this.tagCache.set(cursor.value.name, cursor.value.description);
+			cursor = await cursor.continue();
+		}
+	}
+
+	getTagDescription(tagName: string): string {
+		return this.tagCache.get(tagName) || "";
 	}
 }

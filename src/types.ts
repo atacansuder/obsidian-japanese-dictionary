@@ -50,6 +50,14 @@ export interface ProcessedTerm {
 	dictionary: string; // To know which dict it came from
 }
 
+export type RawTagEntry = [string, string, number, string, number];
+
+export interface TagDefinition {
+	name: string;
+	category: string;
+	description: string;
+}
+
 export interface YomitanDB extends DBSchema {
 	terms: {
 		key: number;
@@ -62,5 +70,9 @@ export interface YomitanDB extends DBSchema {
 	dictionaries: {
 		key: string; // dictionary title
 		value: YomitanIndex;
+	};
+	tag_defs: {
+		key: string;
+		value: TagDefinition;
 	};
 }
