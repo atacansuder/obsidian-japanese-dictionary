@@ -1,5 +1,5 @@
 import JapanesePopupDictionary from "main";
-import { App, PluginSettingTab, Setting } from "obsidian";
+import { App, Notice, PluginSettingTab, Setting } from "obsidian";
 import { TriggerKeys } from "./types";
 
 export interface JapanesePopupDictionarySettings {
@@ -20,7 +20,7 @@ export class SampleSettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
-	display(): void {
+	async display(): Promise<void> {
 		const { containerEl } = this;
 		containerEl.empty();
 
@@ -33,28 +33,6 @@ export class SampleSettingTab extends PluginSettingTab {
 					.onChange(async (value) => {
 						this.plugin.settings.isDictionaryOn = value;
 						await this.plugin.saveSettings();
-					});
-			});
-
-		new Setting(containerEl)
-			.setName("Import Yomitan Dictionary")
-			.setDesc(
-				"Open the plugin folder, place your Yomitan .zip file there, then click Import."
-			)
-			.addExtraButton((button) => {
-				button
-					.setIcon("folder-open")
-					.setTooltip("Open plugin folder")
-					.onClick(() => {
-						this.plugin.importer.openPluginFolder();
-					});
-			})
-			.addButton((button) => {
-				button
-					.setButtonText("Import .zip")
-					.setCta()
-					.onClick(async () => {
-						await this.plugin.importer.importDictionary();
 					});
 			});
 
@@ -73,5 +51,68 @@ export class SampleSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					});
 			});
+
+		containerEl.createEl("hr");
+
+		const stats = await this.plugin.dictionaryManager.getDictionaryStats();
+
+		if (stats) {
+			new Setting(containerEl)
+				.setName("Dictionary information")
+				.setHeading()
+				.setDesc(
+					`${stats.title} | Total terms: ${stats.count} | Size: ${stats.size}`
+				);
+
+			new Setting(containerEl)
+				.setName("Delete dictionary")
+				.setDesc(
+					"Remove the dictionary database to free up space or import a different one."
+				)
+				.addButton((button) => {
+					button
+						.setButtonText("Delete dictionary")
+						.setWarning()
+						.onClick(async () => {
+							if (
+								!confirm(
+									`Are you sure you want to delete "${stats.title}"? This action cannot be undone.`
+								)
+							) {
+								return;
+							}
+
+							new Notice("Deleting dictionary...");
+							await this.plugin.dictionaryManager.deleteDatabase();
+							new Notice("Dictionary deleted successfully.");
+
+							this.display();
+						});
+				});
+		} else {
+			new Setting(containerEl)
+				.setName("Import yomitan dictionary")
+				.setHeading()
+				.setDesc(
+					"Open the plugin folder, place your Yomitan .zip file there, then click Import."
+				)
+				.addExtraButton((button) => {
+					button
+						.setIcon("folder-open")
+						.setTooltip("Open plugin folder")
+						.onClick(() => {
+							this.plugin.importer.openPluginFolder();
+						});
+				})
+				.addButton((button) => {
+					button
+						.setButtonText("Import .zip")
+						.setCta()
+						.onClick(async () => {
+							await this.plugin.importer.importDictionary();
+							this.display();
+						});
+				});
+		}
 	}
 }

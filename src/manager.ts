@@ -1,4 +1,4 @@
-import { openDB, DBSchema, IDBPDatabase } from "idb";
+import { openDB, DBSchema, IDBPDatabase, deleteDB } from "idb";
 import { ProcessedTerm, YomitanDB } from "./types";
 import { Deinflector } from "./deinflector";
 
@@ -109,5 +109,59 @@ export class DictionaryManager {
 
 	getTagDescription(tagName: string): string {
 		return this.tagCache.get(tagName) || "";
+	}
+
+	async getDictionaryStats(): Promise<{
+		title: string;
+		count: number;
+		size: string;
+	} | null> {
+		const dbNames = await window.indexedDB.databases();
+		const exists = dbNames.some((d) => d.name === "yomitan-dict");
+		if (!exists) return null;
+
+		const db = await this.getDB();
+
+		let title = "Unknown dictionary";
+		try {
+			const dicts = await db.getAll("dictionaries");
+			if (dicts.length > 0) {
+				title = dicts[0].title;
+			}
+		} catch (e) {
+			console.warn("Could not fetch dictionary metadata", e);
+		}
+
+		const count = await db.count("terms");
+		if (count === 0 && title === "Unknown dictionary") return null;
+
+		let size = "Unknown";
+		if (navigator.storage && navigator.storage.estimate) {
+			try {
+				const estimate = await navigator.storage.estimate();
+				if (estimate.usage) {
+					const mb = estimate.usage / (1024 * 1024);
+					size = `${mb.toFixed(2)} MB`;
+				}
+			} catch (e) {
+				console.warn("Storage estimation failed", e);
+			}
+		}
+
+		return {
+			title,
+			count,
+			size,
+		};
+	}
+
+	async deleteDatabase(): Promise<void> {
+		if (this.db) {
+			this.db.close();
+			this.db = null;
+		}
+
+		await deleteDB("yomitan-dict");
+		this.tagCache.clear();
 	}
 }
