@@ -1,6 +1,7 @@
 import { openDB, DBSchema, IDBPDatabase, deleteDB } from "idb";
 import { ProcessedTerm, YomitanDB } from "./types";
 import { Deinflector } from "./deinflector";
+import { Notice } from "obsidian";
 
 export class DictionaryManager {
 	private db: IDBPDatabase<YomitanDB> | null = null;
@@ -28,6 +29,15 @@ export class DictionaryManager {
 				db.createObjectStore("dictionaries", { keyPath: "title" });
 
 				db.createObjectStore("tag_defs", { keyPath: "name" });
+			},
+			blocking() {
+				if (this.db) {
+					this.db.close();
+					this.db = null;
+				}
+			},
+			terminated() {
+				this.db = null;
 			},
 		});
 
@@ -161,7 +171,13 @@ export class DictionaryManager {
 			this.db = null;
 		}
 
-		await deleteDB("yomitan-dict");
+		await deleteDB("yomitan-dict", {
+			blocked: () => {
+				new Notice(
+					"Delete database request blocked. Close other tabs or plugins."
+				);
+			},
+		});
 		this.tagCache.clear();
 	}
 }

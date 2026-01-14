@@ -52,23 +52,22 @@ export class SampleSettingTab extends PluginSettingTab {
 					});
 			});
 
-		containerEl.createEl("hr");
-
 		const stats = await this.plugin.dictionaryManager.getDictionaryStats();
 
 		if (stats) {
-			new Setting(containerEl)
-				.setName("Dictionary information")
-				.setHeading()
-				.setDesc(
-					`${stats.title} | Total terms: ${stats.count} | Size: ${stats.size}`
-				);
+			const desc = document.createDocumentFragment();
+			desc.append(
+				"Remove the dictionary database to free up space or import a different one."
+			);
+			desc.createEl("br");
+			desc.createEl("br");
+			desc.createEl("div", { text: `Title: ${stats.title}` });
+			desc.createEl("div", { text: `Total terms: ${stats.count}` });
+			desc.createEl("div", { text: `Size: ${stats.size}` });
 
 			new Setting(containerEl)
 				.setName("Delete dictionary")
-				.setDesc(
-					"Remove the dictionary database to free up space or import a different one."
-				)
+				.setDesc(desc)
 				.addButton((button) => {
 					button
 						.setButtonText("Delete dictionary")
@@ -90,12 +89,26 @@ export class SampleSettingTab extends PluginSettingTab {
 						});
 				});
 		} else {
+			const importDesc = document.createDocumentFragment();
+			importDesc.append(
+				"Required to enable lookups. Follow these steps:"
+			);
+			// Add spacing
+			importDesc.createEl("br");
+			importDesc.createEl("br");
+			importDesc.createEl("div", {
+				text: "1. Click the folder icon to open the location.",
+			});
+			importDesc.createEl("div", {
+				text: "2. Place your Yomitan .zip file inside.",
+			});
+			importDesc.createEl("div", {
+				text: "3. Click the 'Import' button.",
+			});
+
 			new Setting(containerEl)
-				.setName("Import yomitan dictionary")
-				.setHeading()
-				.setDesc(
-					"Open the plugin folder, place your Yomitan .zip file there, then click Import."
-				)
+				.setName("Import dictionary")
+				.setDesc(importDesc)
 				.addExtraButton((button) => {
 					button
 						.setIcon("folder-open")
