@@ -38,10 +38,14 @@
 				padding-left: var(--size-4-4);
 			}
 		}
+
+		.popup-term-list {
+			margin: var(--size-4-1) 0;
+		}
 	}
 
 	.popup-tag {
-		background-color: var(--interactive-hover);
+		background-color: var(--background-modifier-hover);
 		padding: 0 var(--size-4-1);
 		border-radius: var(--radius-s);
 		font-weight: var(--font-semibold);
@@ -49,9 +53,5 @@
 		&:not(:first-child) {
 			margin-left: var(--size-4-1);
 		}
-	}
-
-	.popup-term-link {
-		margin: 0 var(--size-4-1);
 	}
 }

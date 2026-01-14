@@ -219,7 +219,7 @@ export class PopupManager {
 			tagName as keyof HTMLElementTagNameMap,
 			{
 				attr: sc.lang ? { lang: sc.lang } : undefined,
-				cls: "popup-term-link",
+				cls: sc.tag === "ul" ? "popup-term-list" : undefined,
 			},
 			(element) => {
 				if (sc.content) {

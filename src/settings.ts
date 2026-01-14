@@ -8,7 +8,7 @@ export interface JapanesePopupDictionarySettings {
 }
 
 export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
-	triggerKey: TriggerKeys.None,
+	triggerKey: TriggerKeys.Shift,
 	isDictionaryOn: true,
 };
 
