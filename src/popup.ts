@@ -150,17 +150,26 @@ export class PopupManager {
 											{ cls: "popup-term-forms-list" },
 											(ul) => {
 												content.forEach((formItem) => {
-													ul.createEl(
-														"li",
-														{},
-														(formLi) => {
-															this.renderStructuredContent(
-																formLi,
-																formItem
-															);
-														}
+													const li =
+														ul.createEl("li");
+													this.renderStructuredContent(
+														li,
+														formItem
 													);
+
+													// Check if it ended up empty (Defensive cleanup)
+													// This handles cases where data is missing or filtered out
+													if (
+														li.innerText.trim() ===
+														""
+													) {
+														li.remove();
+													}
 												});
+												// If no list items were added, remove the ul
+												if (ul.children.length === 0) {
+													ul.remove();
+												}
 											}
 										);
 									} else {
@@ -202,16 +211,6 @@ export class PopupManager {
 		}
 
 		const sc = content as StructuredContent;
-
-		// Filtering out tables for now for simplicity (normally they are used for different forms, like "nihongo" vs "nippongo")
-		if (
-			sc.tag === "table" ||
-			sc.tag === "tr" ||
-			sc.tag === "td" ||
-			sc.tag === "th"
-		) {
-			return;
-		}
 
 		const tagName = sc.tag || "span";
 
