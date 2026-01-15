@@ -234,12 +234,18 @@ export class PopupManager {
 						: sc.data?.class
 						? "popup-term-" + sc.data?.class
 						: undefined,
-				href: sc.href ?? undefined,
+				href:
+					sc.href && /^https?:\/\//i.test(sc.href)
+						? sc.href
+						: undefined,
 			},
 			(element) => {
 				if (sc.content) {
 					// If it's a link without href, make it clickable to lookup
-					if (sc.tag === "a" && !sc.href) {
+					if (
+						sc.tag === "a" &&
+						(!sc.href || /^https?:\/\//i.test(sc.href) === false)
+					) {
 						element.addEventListener("click", async (e) => {
 							e.preventDefault();
 							const res = await this.dictionaryManager.lookup(
