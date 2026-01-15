@@ -1,94 +1,78 @@
-# Obsidian Sample Plugin
+A fast, offline popup dictionary for Japanese learners using Obsidian. Hover over Japanese text while holding a modifier key (Shift, Ctrl, or Alt) to instantly see definitions, readings, and verb conjugations.
 
-This is a sample plugin for Obsidian (https://obsidian.md).
+![Demo](https://github.com/atacansuder/japanese-popup-dictionary/raw/main/images/demo.gif)
 
-This project uses TypeScript to provide type checking and documentation.
-The repo depends on the latest plugin API (obsidian.d.ts) in TypeScript Definition format, which contains TSDoc comments describing what it does.
+## Features
 
-This sample plugin demonstrates some of the basic functionality the plugin API can do.
-- Adds a ribbon icon, which shows a Notice when clicked.
-- Adds a command "Open Sample Modal" which opens a Modal.
-- Adds a plugin setting tab to the settings page.
-- Registers a global click event and output 'click' to the console.
-- Registers a global interval which logs 'setInterval' to the console.
+-   **Instant Lookups:** fast local lookups using IndexedDB.
+-   **Yomitan/Yomichan Compatible:** Supports standard dictionary formats (JMdict, Jitendex, etc.).
+-   **Deinflection Support:** Automatically detects conjugated verbs and adjectives (e.g., handles 食べられなかった correctly).
+-   **Configurable Triggers:** Choose to trigger the popup with `Shift`, `Ctrl`, `Alt`, or have it always on.
+-   **Frequency & Pitch Accent:** Displays pitch accent and frequency tags if your dictionary data includes them.
 
-## First time developing plugins?
+> [!WARNING] > **Desktop Only:** This plugin currently relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
 
-Quick starting guide for new plugin devs:
+## Installation
 
-- Check if [someone already developed a plugin for what you want](https://obsidian.md/plugins)! There might be an existing plugin similar enough that you can partner up with.
-- Make a copy of this repo as a template with the "Use this template" button (login to GitHub if you don't see it).
-- Clone your repo to a local development folder. For convenience, you can place this folder in your `.obsidian/plugins/your-plugin-name` folder.
-- Install NodeJS, then run `npm i` in the command line under your repo folder.
-- Run `npm run dev` to compile your plugin from `main.ts` to `main.js`.
-- Make changes to `main.ts` (or create new `.ts` files). Those changes should be automatically compiled into `main.js`.
-- Reload Obsidian to load the new version of your plugin.
-- Enable plugin in settings window.
-- For updates to the Obsidian API run `npm update` in the command line under your repo folder.
+### From Community Plugins
 
-## Releasing new releases
+1. Open Obsidian Settings > Community Plugins.
+2. Turn off Safe Mode.
+3. Click **Browse** and search for "Japanese Popup Dictionary".
+4. Click **Install** and then **Enable**.
 
-- Update your `manifest.json` with your new version number, such as `1.0.1`, and the minimum Obsidian version required for your latest release.
-- Update your `versions.json` file with `"new-plugin-version": "minimum-obsidian-version"` so older versions of Obsidian can download an older version of your plugin that's compatible.
-- Create new GitHub release using your new version number as the "Tag version". Use the exact version number, don't include a prefix `v`. See here for an example: https://github.com/obsidianmd/obsidian-sample-plugin/releases
-- Upload the files `manifest.json`, `main.js`, `styles.css` as binary attachments. Note: The manifest.json file must be in two places, first the root path of your repository and also in the release.
-- Publish the release.
+### Manual Installation
 
-> You can simplify the version bump process by running `npm version patch`, `npm version minor` or `npm version major` after updating `minAppVersion` manually in `manifest.json`.
-> The command will bump version in `manifest.json` and `package.json`, and add the entry for the new version to `versions.json`
+1. Download the latest release from the [Releases](https://github.com/atacansuder/japanese-popup-dictionary/releases) page.
+2. Extract the `main.js`, `manifest.json`, and `styles.css` files.
+3. Place them in your vault's plugin folder: `.obsidian/plugins/japanese-popup-dictionary/`.
+4. Reload Obsidian.
 
-## Adding your plugin to the community plugin list
+## Setup: Importing a Dictionary
 
-- Check the [plugin guidelines](https://docs.obsidian.md/Plugins/Releasing/Plugin+guidelines).
-- Publish an initial version.
-- Make sure you have a `README.md` file in the root of your repo.
-- Make a pull request at https://github.com/obsidianmd/obsidian-releases to add your plugin.
+Before the plugin works, you must import a dictionary file. This plugin uses the **Yomitan (formerly Yomichan)** dictionary format.
 
-## How to use
+1.  **Download a Dictionary:**
 
-- Clone this repo.
-- Make sure your NodeJS is at least v16 (`node --version`).
-- `npm i` or `yarn` to install dependencies.
-- `npm run dev` to start compilation in watch mode.
+    -   [Jitendex](https://github.com/stephenmk/Jitendex/releases) (Recommended: Combine JMdict + Kanji + Pitch Accent).
+    -   [Yomichan-dict repo](https://github.com/MarvNC/yomichan-dictionaries).
+    -   Ensure the file is a `.zip` file (do not unzip it).
 
-## Manually installing the plugin
+2.  **Open Plugin Settings:**
 
-- Copy over `main.js`, `styles.css`, `manifest.json` to your vault `VaultFolder/.obsidian/plugins/your-plugin-id/`.
+    -   Go to **Settings** > **Japanese Popup Dictionary**.
 
-## Improve code quality with eslint (optional)
-- [ESLint](https://eslint.org/) is a tool that analyzes your code to quickly find problems. You can run ESLint against your plugin to find common bugs and ways to improve your code. 
-- To use eslint with this project, make sure to install eslint from terminal:
-  - `npm install -g eslint`
-- To use eslint to analyze this project use this command:
-  - `eslint main.ts`
-  - eslint will then create a report with suggestions for code improvement by file and line number.
-- If your source code is in a folder, such as `src`, you can use eslint with this command to analyze all files in that folder:
-  - `eslint ./src/`
+3.  **Import the File:**
 
-## Funding URL
+    -   Scroll to the **Import dictionary** section.
+    -   Click the **Folder Icon** button. This opens the plugin's data folder on your computer.
+    -   **Copy/Paste** your downloaded dictionary `.zip` file into this folder.
+    -   Return to Obsidian and click the **Import .zip** button.
+    -   Wait for the progress bar to complete.
 
-You can include funding URLs where people who use your plugin can financially support it.
+4.  **Done!** You can now delete the `.zip` file from the folder if you wish.
 
-The simple way is to set the `fundingUrl` field to your link in your `manifest.json` file:
+## Usage
 
-```json
-{
-    "fundingUrl": "https://buymeacoffee.com"
-}
-```
+1.  Open a note containing Japanese text.
+2.  Hold the **Trigger Key** (Default: `Shift`).
+3.  Hover your mouse over a word.
+4.  A popup will appear with the definition.
 
-If you have multiple URLs, you can also do:
+## Settings
 
-```json
-{
-    "fundingUrl": {
-        "Buy Me a Coffee": "https://buymeacoffee.com",
-        "GitHub Sponsor": "https://github.com/sponsors",
-        "Patreon": "https://www.patreon.com/"
-    }
-}
-```
+-   **Trigger Key:** Select which key to hold to activate the scanner (`Shift`, `Ctrl`, `Alt`, or `None`).
+    -   _Note: Setting this to "None" causes the dictionary to scan every time you move your mouse over Japanese text._
+-   **Enable/Disable:** Quickly toggle the plugin on or off without uninstalling.
 
-## API Documentation
+## Development
 
-See https://github.com/obsidianmd/obsidian-api
+If you want to contribute or build from source:
+
+1.  Clone the repository.
+2.  Run `npm install` to install dependencies.
+3.  Run `npm run dev` to start compilation in watch mode.
+
+## License
+
+MIT License
