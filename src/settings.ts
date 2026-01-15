@@ -152,14 +152,22 @@ export class SampleSettingTab extends PluginSettingTab {
 			// Add spacing
 			importDesc.createEl("br");
 			importDesc.createEl("br");
-			importDesc.createEl("div", {
-				text: "1. Click the folder icon to open the location.",
+			importDesc.createEl("a", {
+				text: "1. Download a Yomitan format Japanese dictionary.",
+				href: "https://yomitan.wiki/dictionaries/#japanese",
+			});
+			importDesc.createEl("br");
+			importDesc.createEl("small", {
+				text: "(recommended: Jitendex or JMdict)",
 			});
 			importDesc.createEl("div", {
-				text: "2. Place your Yomitan .zip file inside.",
+				text: "2. Click the folder icon to open the plugin location.",
 			});
 			importDesc.createEl("div", {
-				text: "3. Click the 'Import' button.",
+				text: "3. Place your dictionary .zip file you downloaded inside.",
+			});
+			importDesc.createEl("div", {
+				text: "4. Click the 'Import' button.",
 			});
 
 			new Setting(containerEl)
