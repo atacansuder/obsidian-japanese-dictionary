@@ -158,7 +158,7 @@ export class SampleSettingTab extends PluginSettingTab {
 			});
 			importDesc.createEl("br");
 			importDesc.createEl("small", {
-				text: "(recommended: Jitendex or JMdict)",
+				text: "(recommended: JMdict or Jitendex)",
 			});
 			importDesc.createEl("div", {
 				text: "2. Click the folder icon to open the plugin location.",
