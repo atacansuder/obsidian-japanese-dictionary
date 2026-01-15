@@ -67,8 +67,6 @@ export class PopupManager {
 
 		const groups = this.groupTermsByExpressionReading(terms);
 
-		console.log("Rendering terms in popup:", groups);
-
 		groups.forEach((groupTerms, key) => {
 			container.createDiv({ cls: "popup-term" }, (termContainer) => {
 				const header = termContainer.createDiv({
