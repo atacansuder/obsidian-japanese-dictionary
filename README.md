@@ -10,7 +10,8 @@ A fast, offline popup dictionary for Japanese learners using Obsidian. Hover ove
 -   **Configurable Triggers:** Choose to trigger the popup with `Shift`, `Ctrl`, `Alt`, or have it always on.
 -   **Frequency & Pitch Accent:** Displays pitch accent and frequency tags if your dictionary data includes them.
 
-> [!WARNING] > **Desktop Only:** This plugin currently relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
+> [!WARNING]
+> **Desktop Only:** This plugin currently relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
 
 ## Installation
 
@@ -34,8 +35,8 @@ Before the plugin works, you must import a dictionary file. This plugin uses the
 
 1.  **Download a Dictionary:**
 
-    -   [Jitendex](https://github.com/stephenmk/Jitendex/releases) (Recommended: Combine JMdict + Kanji + Pitch Accent).
-    -   [Yomichan-dict repo](https://github.com/MarvNC/yomichan-dictionaries).
+    -   Visit [this links](https://yomitan.wiki/dictionaries/#japanese) and download one of the dictionaries.
+    -   Recommended: [JMDict](https://github.com/yomidevs/jmdict-yomitan/releases) or [Jitendex](https://github.com/stephenmk/Jitendex/releases).
     -   Ensure the file is a `.zip` file (do not unzip it).
 
 2.  **Open Plugin Settings:**
@@ -45,8 +46,8 @@ Before the plugin works, you must import a dictionary file. This plugin uses the
 3.  **Import the File:**
 
     -   Scroll to the **Import dictionary** section.
-    -   Click the **Folder Icon** button. This opens the plugin's data folder on your computer.
-    -   **Copy/Paste** your downloaded dictionary `.zip` file into this folder.
+    -   Click the **Folder Icon** button to open the plugin's data folder on your computer.
+    -   **Copy/Paste** your downloaded dictionary `.zip` file into this folder. **Make sure that there is only one zip file!**
     -   Return to Obsidian and click the **Import .zip** button.
     -   Wait for the progress bar to complete.
 
@@ -72,7 +73,3 @@ If you want to contribute or build from source:
 1.  Clone the repository.
 2.  Run `npm install` to install dependencies.
 3.  Run `npm run dev` to start compilation in watch mode.
-
-## License
-
-MIT License
