@@ -1,5 +1,11 @@
 import JapanesePopupDictionary from "main";
-import { App, Notice, PluginSettingTab, Setting } from "obsidian";
+import {
+	App,
+	Notice,
+	PluginSettingTab,
+	Setting,
+	ProgressBarComponent,
+} from "obsidian";
 import { TriggerKeys } from "./types";
 
 export interface JapanesePopupDictionarySettings {
@@ -122,7 +128,23 @@ export class SampleSettingTab extends PluginSettingTab {
 						.setButtonText("Import .zip")
 						.setCta()
 						.onClick(async () => {
-							await this.plugin.importer.importDictionary();
+							button.setDisabled(true);
+
+							let progressBar: ProgressBarComponent | null = null;
+							new Setting(containerEl)
+								.setName("Import progress")
+								.addProgressBar((pb) => {
+									progressBar = pb;
+									pb.setValue(0);
+								});
+
+							await this.plugin.importer.importDictionary(
+								(percent) => {
+									if (progressBar) {
+										progressBar.setValue(percent);
+									}
+								}
+							);
 							this.display();
 						});
 				});

@@ -42,7 +42,7 @@ export class DictionaryImporter {
 		shell.openPath(fullPath);
 	}
 
-	async importDictionary() {
+	async importDictionary(onProgress?: (percentage: number) => void) {
 		const adapter = this.app.vault.adapter;
 
 		const listResult = await adapter.list(this.pluginManifestDir);
@@ -60,7 +60,7 @@ export class DictionaryImporter {
 
 		try {
 			const arrayBuffer = await adapter.readBinary(targetZip);
-			await this.processZip(arrayBuffer);
+			await this.processZip(arrayBuffer, onProgress);
 			new Notice("Dictionary imported successfully!");
 		} catch (error) {
 			new Notice(
@@ -70,7 +70,10 @@ export class DictionaryImporter {
 		}
 	}
 
-	private async processZip(data: ArrayBuffer) {
+	private async processZip(
+		data: ArrayBuffer,
+		onProgress?: (percentage: number) => void
+	) {
 		const zip = await JSZip.loadAsync(data);
 
 		const indexFile = zip.file("index.json");
@@ -94,6 +97,14 @@ export class DictionaryImporter {
 			(filename) =>
 				filename.startsWith("term_bank_") && filename.endsWith(".json")
 		);
+
+		const tagFiles = Object.keys(zip.files).filter(
+			(filename) =>
+				filename.startsWith("tag_bank_") && filename.endsWith(".json")
+		);
+
+		const totalFiles = termFiles.length + tagFiles.length;
+		let filesProcessed = 0;
 
 		let processedCount = 0;
 		new Notice(`Importing ${meta.title}...`);
@@ -128,12 +139,12 @@ export class DictionaryImporter {
 
 			await tx.done;
 			console.log(`Processed batch: ${filename}`);
-		}
 
-		const tagFiles = Object.keys(zip.files).filter(
-			(filename) =>
-				filename.startsWith("tag_bank_") && filename.endsWith(".json")
-		);
+			filesProcessed++;
+			if (onProgress) {
+				onProgress((filesProcessed / totalFiles) * 100);
+			}
+		}
 
 		if (tagFiles.length > 0) {
 			for (const filename of tagFiles) {
@@ -156,6 +167,11 @@ export class DictionaryImporter {
 				}
 
 				await txTags.done;
+
+				filesProcessed++;
+				if (onProgress) {
+					onProgress((filesProcessed / totalFiles) * 100);
+				}
 			}
 		}
 
