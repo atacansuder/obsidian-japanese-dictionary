@@ -169,6 +169,10 @@ export class SampleSettingTab extends PluginSettingTab {
 			importDesc.createEl("div", {
 				text: "4. Click the 'Import' button.",
 			});
+			importDesc.createEl("br");
+			importDesc.createEl("div", {
+				text: "Feel free to delete the .zip file after importing.",
+			});
 
 			new Setting(containerEl)
 				.setName("Import dictionary")
