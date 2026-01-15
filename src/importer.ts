@@ -61,6 +61,7 @@ export class DictionaryImporter {
 		try {
 			const arrayBuffer = await adapter.readBinary(targetZip);
 			await this.processZip(arrayBuffer, onProgress);
+			await this.dictionaryManager.loadTags();
 			new Notice("Dictionary imported successfully!");
 		} catch (error) {
 			new Notice(
