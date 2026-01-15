@@ -5,6 +5,7 @@ import {
 	PluginSettingTab,
 	Setting,
 	ProgressBarComponent,
+	Modal,
 } from "obsidian";
 import { TriggerKeys } from "./types";
 
@@ -17,6 +18,54 @@ export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
 	triggerKey: TriggerKeys.Shift,
 	isDictionaryOn: true,
 };
+
+class ConfirmationModal extends Modal {
+	title: string;
+	message: string;
+	onConfirm: () => void;
+
+	constructor(
+		app: App,
+		title: string,
+		message: string,
+		onConfirm: () => void
+	) {
+		super(app);
+		this.title = title;
+		this.message = message;
+		this.onConfirm = onConfirm;
+	}
+
+	onOpen() {
+		const { contentEl } = this;
+		contentEl.empty();
+
+		this.setTitle(this.title);
+
+		contentEl.createEl("p", { text: this.message });
+
+		new Setting(contentEl)
+			.addButton((btn) =>
+				btn.setButtonText("Cancel").onClick(() => {
+					this.close();
+				})
+			)
+			.addButton((btn) =>
+				btn
+					.setButtonText("Delete")
+					.setWarning()
+					.onClick(() => {
+						this.onConfirm();
+						this.close();
+					})
+			);
+	}
+
+	onClose() {
+		const { contentEl } = this;
+		contentEl.empty();
+	}
+}
 
 export class SampleSettingTab extends PluginSettingTab {
 	plugin: JapanesePopupDictionary;
@@ -79,19 +128,20 @@ export class SampleSettingTab extends PluginSettingTab {
 						.setButtonText("Delete dictionary")
 						.setWarning()
 						.onClick(async () => {
-							if (
-								!confirm(
-									`Are you sure you want to delete "${stats.title}"? This action cannot be undone.`
-								)
-							) {
-								return;
-							}
+							new ConfirmationModal(
+								this.app,
+								"Delete dictionary",
+								`Are you sure you want to delete "${stats.title}"? This action cannot be undone.`,
+								async () => {
+									new Notice("Deleting dictionary...");
+									await this.plugin.dictionaryManager.deleteDatabase();
+									new Notice(
+										"Dictionary deleted successfully."
+									);
 
-							new Notice("Deleting dictionary...");
-							await this.plugin.dictionaryManager.deleteDatabase();
-							new Notice("Dictionary deleted successfully.");
-
-							this.display();
+									this.display();
+								}
+							).open();
 						});
 				});
 		} else {
