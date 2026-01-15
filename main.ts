@@ -41,6 +41,9 @@ export default class JapanesePopupDictionary extends Plugin {
 
 	onunload() {
 		this.popupManager.destroyPopup();
+		if (this.dictionaryManager) {
+			this.dictionaryManager.close();
+		}
 	}
 
 	async loadSettings() {

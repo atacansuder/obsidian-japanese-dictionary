@@ -165,6 +165,13 @@ export class DictionaryManager {
 		};
 	}
 
+	close(): void {
+		if (this.db) {
+			this.db.close();
+			this.db = null;
+		}
+	}
+
 	async deleteDatabase(): Promise<void> {
 		if (this.db) {
 			this.db.close();
