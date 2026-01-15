@@ -106,14 +106,17 @@ export class DictionaryManager {
 	}
 
 	async loadTags() {
-		if (!this.db) return;
-		const tx = this.db.transaction("tag_defs", "readonly");
-		const store = tx.objectStore("tag_defs");
-		let cursor = await store.openCursor();
+		try {
+			const db = await this.getDB();
+			const tags = await db.getAll("tag_defs");
 
-		while (cursor) {
-			this.tagCache.set(cursor.value.name, cursor.value.description);
-			cursor = await cursor.continue();
+			this.tagCache.clear();
+			for (const tag of tags) {
+				this.tagCache.set(tag.name, tag.description);
+			}
+			console.log(`Loaded ${this.tagCache.size} tags into cache.`);
+		} catch (e) {
+			console.error("Failed to load tags:", e);
 		}
 	}
 

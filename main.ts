@@ -21,6 +21,8 @@ export default class JapanesePopupDictionary extends Plugin {
 
 		this.dictionaryManager = new DictionaryManager();
 
+		await this.dictionaryManager.loadTags();
+
 		this.importer = new DictionaryImporter(
 			this.app,
 			this.manifest.dir!,
