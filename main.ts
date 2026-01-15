@@ -5,7 +5,7 @@ import { DictionaryManager } from "src/manager";
 import {
 	DEFAULT_SETTINGS,
 	JapanesePopupDictionarySettings,
-	SampleSettingTab,
+	JapanesePopupDictionarySettingTab,
 } from "src/settings";
 import { PopupManager } from "src/popup";
 
@@ -29,7 +29,9 @@ export default class JapanesePopupDictionary extends Plugin {
 			this.dictionaryManager
 		);
 
-		this.addSettingTab(new SampleSettingTab(this.app, this));
+		this.addSettingTab(
+			new JapanesePopupDictionarySettingTab(this.app, this)
+		);
 
 		this.popupManager = new PopupManager(this.dictionaryManager);
 		this.scanner = new JapaneseScanner(this, this.popupManager);

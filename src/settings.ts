@@ -67,7 +67,7 @@ class ConfirmationModal extends Modal {
 	}
 }
 
-export class SampleSettingTab extends PluginSettingTab {
+export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 	plugin: JapanesePopupDictionary;
 
 	constructor(app: App, plugin: JapanesePopupDictionary) {
