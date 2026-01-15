@@ -1,11 +1,11 @@
 {
-	"id": "sample-plugin",
-	"name": "Sample Plugin",
+	"id": "japanese-popup-dictionary",
+	"name": "Japanese Popup Dictionary",
 	"version": "1.0.0",
-	"minAppVersion": "0.15.0",
-	"description": "Demonstrates some of the capabilities of the Obsidian API.",
-	"author": "Obsidian",
-	"authorUrl": "https://obsidian.md",
-	"fundingUrl": "https://obsidian.md/pricing",
-	"isDesktopOnly": false
+	"minAppVersion": "1.10.0",
+	"description": "Popup dictionary for Japanese.",
+	"author": "Atacan Süder",
+	"authorUrl": "https://github.com/atacansuder",
+	"fundingUrl": "https://buymeacoffee.com/asuder",
+	"isDesktopOnly": true
 }
