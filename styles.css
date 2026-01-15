@@ -43,20 +43,17 @@
 			margin: var(--size-4-1) 0;
 		}
 
-		.popup-term-forms-list {
-			table {
-				border-collapse: collapse;
-				width: 100%;
-				font-size: var(--font-small);
-			}
+		table {
+			border-collapse: collapse;
+			width: 100%;
+			font-size: var(--font-small);
+		}
 
-			th,
-			td {
-				border: var(--border-width) solid
-					var(--background-modifier-border);
-				padding: var(--size-4-1) var(--size-4-2);
-				text-align: left;
-			}
+		th,
+		td {
+			border: var(--border-width) solid var(--background-modifier-border);
+			padding: var(--size-4-1) var(--size-4-2);
+			text-align: left;
 		}
 	}
 
