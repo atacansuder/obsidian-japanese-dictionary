@@ -28,9 +28,6 @@ export class DictionaryImporter {
 
 	async openPluginFolder() {
 		if (!Platform.isDesktop) {
-			console.warn(
-				"openPluginFolder is only available on Desktop platforms."
-			);
 			return;
 		}
 		const adapter = this.app.vault.adapter as FileSystemAdapter;
@@ -56,7 +53,6 @@ export class DictionaryImporter {
 		}
 
 		const targetZip = zipFiles[0];
-		console.log("Importing", targetZip);
 
 		try {
 			const arrayBuffer = await adapter.readBinary(targetZip);
@@ -139,7 +135,6 @@ export class DictionaryImporter {
 			}
 
 			await tx.done;
-			console.log(`Processed batch: ${filename}`);
 
 			filesProcessed++;
 			if (onProgress) {
@@ -177,7 +172,5 @@ export class DictionaryImporter {
 		}
 
 		await this.dictionaryManager.loadTags();
-
-		console.log(`Imported ${processedCount} terms from ${meta.title}`);
 	}
 }

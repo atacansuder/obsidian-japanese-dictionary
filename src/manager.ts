@@ -114,7 +114,6 @@ export class DictionaryManager {
 			for (const tag of tags) {
 				this.tagCache.set(tag.name, tag.description);
 			}
-			console.log(`Loaded ${this.tagCache.size} tags into cache.`);
 		} catch (e) {
 			console.error("Failed to load tags:", e);
 		}
@@ -142,7 +141,7 @@ export class DictionaryManager {
 				title = dicts[0].title;
 			}
 		} catch (e) {
-			console.warn("Could not fetch dictionary metadata", e);
+			console.error("Could not fetch dictionary metadata", e);
 		}
 
 		const count = await db.count("terms");
@@ -157,7 +156,7 @@ export class DictionaryManager {
 					size = `${mb.toFixed(2)} MB`;
 				}
 			} catch (e) {
-				console.warn("Storage estimation failed", e);
+				console.error("Storage estimation failed", e);
 			}
 		}
 
