@@ -67,6 +67,8 @@ export class PopupManager {
 
 		const groups = this.groupTermsByExpressionReading(terms);
 
+		console.log("Rendering terms in popup:", groups);
+
 		groups.forEach((groupTerms, key) => {
 			container.createDiv({ cls: "popup-term" }, (termContainer) => {
 				const header = termContainer.createDiv({
@@ -228,11 +230,18 @@ export class PopupManager {
 			tagName as keyof HTMLElementTagNameMap,
 			{
 				attr: sc.lang ? { lang: sc.lang } : undefined,
-				cls: sc.tag === "ul" ? "popup-term-list" : undefined,
+				cls:
+					sc.tag === "ul"
+						? "popup-term-list"
+						: sc.data?.class
+						? "popup-term-" + sc.data?.class
+						: undefined,
+				href: sc.href ?? undefined,
 			},
 			(element) => {
 				if (sc.content) {
-					if (sc.tag === "a") {
+					// If it's a link without href, make it clickable to lookup
+					if (sc.tag === "a" && !sc.href) {
 						element.addEventListener("click", async (e) => {
 							e.preventDefault();
 							const res = await this.dictionaryManager.lookup(

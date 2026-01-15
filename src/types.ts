@@ -36,6 +36,7 @@ export interface StructuredContent {
 	style?: Record<string, string>;
 	data?: Record<string, string>;
 	type?: string;
+	href?: string;
 }
 
 export type RawDefinition = string | StructuredContent[];

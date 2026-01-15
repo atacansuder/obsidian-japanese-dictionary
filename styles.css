@@ -57,7 +57,8 @@
 		}
 	}
 
-	.popup-tag {
+	.popup-tag,
+	.popup-term-tag {
 		background-color: var(--background-modifier-hover);
 		padding: 0 var(--size-4-1);
 		border-radius: var(--radius-s);
@@ -66,5 +67,9 @@
 		&:not(:first-child) {
 			margin-left: var(--size-4-1);
 		}
+	}
+	.popup-term-tag {
+		display: inline-block;
+		margin: var(--size-4-1) 0;
 	}
 }
