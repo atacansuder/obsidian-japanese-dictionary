@@ -2,7 +2,7 @@
 
 A fast, offline popup dictionary for Japanese learners using Obsidian.
 
-![Demo](https://github.com/atacansuder/japanese-popup-dictionary/raw/main/images/demo.gif)
+![Demo](./images/demo.gif)
 
 ## Features
 
