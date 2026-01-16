@@ -10,8 +10,7 @@ A fast, offline popup dictionary for Japanese learners using Obsidian.
 -   **Yomitan/Yomichan Compatible:** Supports Yomitan dictionary formats (JMdict, Jitendex, etc.).
 -   **Deinflection Support:** Automatically detects conjugated verbs and adjectives (e.g., handles 食べられなかった correctly).
 
-> [!WARNING]
-> **Desktop Only:** This plugin relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
+> [!WARNING] > **Desktop Only:** This plugin relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
 
 ## Installation
 
