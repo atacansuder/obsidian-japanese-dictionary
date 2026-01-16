@@ -8,7 +8,7 @@
 	width: calc(var(--popover-width) * 3 / 4);
 	max-height: var(--popover-height);
 	background-color: var(--background-primary-alt);
-	border: 1px solid var(--background-modifier-border-hover);
+	border: var(--border-width) solid var(--background-modifier-border-hover);
 	border-radius: var(--radius-s);
 	overflow-y: scroll;
 	z-index: var(--layer-popover);
