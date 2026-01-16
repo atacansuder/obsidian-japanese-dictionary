@@ -1,4 +1,6 @@
-A fast, offline popup dictionary for Japanese learners using Obsidian. Hover over Japanese text while holding a modifier key (Shift, Ctrl, or Alt) to instantly see definitions, readings, and verb conjugations.
+# Obsidian Japanese Popup Dictionary
+
+A fast, offline popup dictionary for Japanese learners using Obsidian.
 
 ![Demo](https://github.com/atacansuder/japanese-popup-dictionary/raw/main/images/demo.gif)
 
@@ -10,8 +12,7 @@ A fast, offline popup dictionary for Japanese learners using Obsidian. Hover ove
 -   **Configurable Triggers:** Choose to trigger the popup with `Shift`, `Ctrl`, `Alt`, or have it always on.
 -   **Frequency & Pitch Accent:** Displays pitch accent and frequency tags if your dictionary data includes them.
 
-> [!WARNING]
-> **Desktop Only:** This plugin currently relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
+> [!WARNING] > **Desktop Only:** This plugin currently relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
 
 ## Installation
 
