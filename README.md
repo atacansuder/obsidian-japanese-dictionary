@@ -10,7 +10,8 @@ A fast, offline popup dictionary for Japanese learners using Obsidian.
 -   **Yomitan/Yomichan Compatible:** Supports Yomitan dictionary formats (JMdict, Jitendex, etc.).
 -   **Deinflection Support:** Automatically detects conjugated verbs and adjectives (e.g., handles 食べられなかった correctly).
 
-> [!WARNING] > **Desktop Only:** This plugin relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
+> [!WARNING]
+> **Desktop Only:** This plugin relies on Node.js and Electron APIs to handle large dictionary imports. It **will not work** on Obsidian Mobile (iOS/Android).
 
 ## Installation
 
@@ -69,9 +70,12 @@ Imported dictionaries are stored in Obsidian's internal database (IndexedDB) and
 
 -   **Delete via Settings:** Go to the plugin settings, click the **Delete dictionary** button, and wait for the deletion to complete.
 -   **Delete Manually:** If the button fails, you can manually clear the database:
+
     1. Open Developer Tools (`Ctrl+Shift+I` on Windows, `Cmd⌘+Option+I` on Mac).
+
         > [!NOTE]
         > If the keyboard shortcut doesn't open Developer Tools, go to **Settings** → **Appearance** → **Window frame style** and select **Obsidian frame**. Restart Obsidian, then click the **Obsidian logo** (top-left corner) and select **View** → **Toggle Developer Tools**.
+
     2. Navigate to the **Application** tab.
     3. Expand **IndexedDB** in the sidebar.
     4. Select **yomitan-dict** and click **Delete database**.
