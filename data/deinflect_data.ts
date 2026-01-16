@@ -1,5 +1,6 @@
 // Data taken from Yomichan's deinflection data:
 // https://github.com/FooSoft/yomichan/blob/master/ext/data/deinflect.json
+// Licensed under GPLv3 (see LICENSE file)
 export const DEINFLECT_DATA = {
 	"-ba": [
 		{ kanaIn: "ければ", kanaOut: "い", rulesIn: [], rulesOut: ["adj-i"] },
