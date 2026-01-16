@@ -87,3 +87,11 @@ If you want to contribute or build from source:
 1.  Clone the repository.
 2.  Run `npm install` to install dependencies.
 3.  Run `npm run dev` to start compilation in watch mode.
+
+## Support the Developer
+
+If you find this plugin useful, please consider buying me a coffe.
+
+<a href="https://www.buymeacoffee.com/asuder">
+    <img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me a Coffee" width="180" height="50">
+</a>
