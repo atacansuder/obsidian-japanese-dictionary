@@ -72,14 +72,13 @@ Imported dictionaries are stored in Obsidian's internal database (IndexedDB) and
 -   **Delete Manually:** If the button fails, you can manually clear the database:
 
     1. Open Developer Tools (`Ctrl+Shift+I` on Windows, `Cmd⌘+Option+I` on Mac).
-
-        > [!NOTE]
-        > If the keyboard shortcut doesn't open Developer Tools, go to **Settings** → **Appearance** → **Window frame style** and select **Obsidian frame**. Restart Obsidian, then click the **Obsidian logo** (top-left corner) and select **View** → **Toggle Developer Tools**.
-
     2. Navigate to the **Application** tab.
     3. Expand **IndexedDB** in the sidebar.
     4. Select **yomitan-dict** and click **Delete database**.
     5. Restart Obsidian.
+
+> [!NOTE]
+> If the keyboard shortcut doesn't open Developer Tools, go to **Settings** → **Appearance** → **Window frame style** and select **Obsidian frame**. Restart Obsidian, then click the **Obsidian logo** (top-left corner) and select **View** → **Toggle Developer Tools**.
 
 ## Development
 
