@@ -22,13 +22,13 @@ export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
 class ConfirmationModal extends Modal {
 	title: string;
 	message: string;
-	onConfirm: () => void | Promise<void>;
+	onConfirm: () => Promise<void>;
 
 	constructor(
 		app: App,
 		title: string,
 		message: string,
-		onConfirm: () => void,
+		onConfirm: () => Promise<void>,
 	) {
 		super(app);
 		this.title = title;
