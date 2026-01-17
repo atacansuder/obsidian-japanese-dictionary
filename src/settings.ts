@@ -22,7 +22,7 @@ export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
 class ConfirmationModal extends Modal {
 	title: string;
 	message: string;
-	onConfirm: () => void;
+	onConfirm: () => void | Promise<void>;
 
 	constructor(
 		app: App,
@@ -55,7 +55,7 @@ class ConfirmationModal extends Modal {
 					.setButtonText("Delete")
 					.setWarning()
 					.onClick(() => {
-						this.onConfirm();
+						void this.onConfirm();
 						this.close();
 					}),
 			);
