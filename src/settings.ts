@@ -28,7 +28,7 @@ class ConfirmationModal extends Modal {
 		app: App,
 		title: string,
 		message: string,
-		onConfirm: () => void
+		onConfirm: () => void,
 	) {
 		super(app);
 		this.title = title;
@@ -48,7 +48,7 @@ class ConfirmationModal extends Modal {
 			.addButton((btn) =>
 				btn.setButtonText("Cancel").onClick(() => {
 					this.close();
-				})
+				}),
 			)
 			.addButton((btn) =>
 				btn
@@ -57,7 +57,7 @@ class ConfirmationModal extends Modal {
 					.onClick(() => {
 						this.onConfirm();
 						this.close();
-					})
+					}),
 			);
 	}
 
@@ -112,7 +112,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 		if (stats) {
 			const desc = document.createDocumentFragment();
 			desc.append(
-				"Remove the dictionary database to free up space or import a different one."
+				"Remove the dictionary database to free up space or import a different one.",
 			);
 			desc.createEl("br");
 			desc.createEl("br");
@@ -136,18 +136,18 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 									new Notice("Deleting dictionary...");
 									await this.plugin.dictionaryManager.deleteDatabase();
 									new Notice(
-										"Dictionary deleted successfully."
+										"Dictionary deleted successfully.",
 									);
 
-									this.display();
-								}
+									void this.display();
+								},
 							).open();
 						});
 				});
 		} else {
 			const importDesc = document.createDocumentFragment();
 			importDesc.append(
-				"Required to enable lookups. Follow these steps:"
+				"Required to enable lookups. Follow these steps:",
 			);
 			// Add spacing
 			importDesc.createEl("br");
@@ -182,7 +182,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 						.setIcon("folder-open")
 						.setTooltip("Open plugin folder")
 						.onClick(() => {
-							this.plugin.importer.openPluginFolder();
+							void this.plugin.importer.openPluginFolder();
 						});
 				})
 				.addButton((button) => {
@@ -205,9 +205,9 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 									if (progressBar) {
 										progressBar.setValue(percent);
 									}
-								}
+								},
 							);
-							this.display();
+							void this.display();
 						});
 				});
 		}

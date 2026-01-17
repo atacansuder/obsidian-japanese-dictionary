@@ -27,16 +27,21 @@ export class DictionaryImporter {
 		this.dictionaryManager = dictionaryManager;
 	}
 
-	openPluginFolder() {
+	async openPluginFolder() {
 		if (!Platform.isDesktop) {
 			return;
 		}
-		const adapter = this.app.vault.adapter as FileSystemAdapter;
-		const fullPath = path.join(
-			adapter.getBasePath(),
-			this.pluginManifestDir,
-		);
-		shell.openPath(fullPath);
+		try {
+			const adapter = this.app.vault.adapter as FileSystemAdapter;
+			const fullPath = path.join(
+				adapter.getBasePath(),
+				this.pluginManifestDir,
+			);
+			await shell.openPath(fullPath);
+		} catch (err) {
+			console.error("Failed to open plugin folder:", err);
+			new Notice("Failed to open plugin folder");
+		}
 	}
 
 	async importDictionary(onProgress?: (percentage: number) => void) {
@@ -129,10 +134,10 @@ export class DictionaryImporter {
 				} as ProcessedTerm;
 			});
 
-			for (const term of termsToAdd) {
-				termStore.add(term);
-				processedCount++;
-			}
+			const promises = termsToAdd.map((term) => termStore.add(term));
+			await Promise.all(promises);
+
+			processedCount += termsToAdd.length;
 
 			await tx.done;
 
@@ -153,15 +158,16 @@ export class DictionaryImporter {
 				const txTags = db.transaction("tag_defs", "readwrite");
 				const tagStore = txTags.objectStore("tag_defs");
 
-				for (const entry of rawTags) {
+				const tagPromises = rawTags.map((entry) => {
 					const tagDef: TagDefinition = {
 						name: entry[0],
 						category: entry[1],
 						description: entry[3],
 					};
-					tagStore.put(tagDef);
-				}
+					return tagStore.put(tagDef);
+				});
 
+				await Promise.all(tagPromises);
 				await txTags.done;
 
 				filesProcessed++;

@@ -114,13 +114,13 @@ export class JapaneseScanner {
 		) {
 			const rubyElem = node.parentElement;
 			const cleanText = this.getRubyBaseText(rubyElem);
-			this.runScanner(node, cleanText, 0);
+			void this.runScanner(node, cleanText, 0);
 			return;
 		}
 
 		if (node.nodeType === Node.TEXT_NODE) {
 			const fullText = node.textContent || "";
-			this.runScanner(node, fullText, offset);
+			void this.runScanner(node, fullText, offset);
 		}
 	}
 
@@ -140,21 +140,33 @@ export class JapaneseScanner {
 	}
 
 	private async runScanner(node: Node, text: string, startOffset: number) {
-		const limit = 20;
-		const availableLength = text.length - startOffset;
-		const scanLength = Math.min(limit, availableLength);
+		try {
+			const limit = 20;
+			const availableLength = text.length - startOffset;
+			const scanLength = Math.min(limit, availableLength);
 
-		for (let i = scanLength; i > 0; i--) {
-			const currentText = text.substring(startOffset, startOffset + i);
-			if (!isJapanese(currentText)) continue;
+			for (let i = scanLength; i > 0; i--) {
+				const currentText = text.substring(
+					startOffset,
+					startOffset + i,
+				);
+				if (!isJapanese(currentText)) continue;
 
-			const results =
-				await this.plugin.dictionaryManager.lookup(currentText);
+				const results =
+					await this.plugin.dictionaryManager.lookup(currentText);
 
-			if (results && results.length > 0) {
-				this.highlightText(node, startOffset, startOffset + i, results);
-				return;
+				if (results && results.length > 0) {
+					this.highlightText(
+						node,
+						startOffset,
+						startOffset + i,
+						results,
+					);
+					return;
+				}
 			}
+		} catch (error) {
+			console.error("Error during scanning:", error);
 		}
 	}
 
