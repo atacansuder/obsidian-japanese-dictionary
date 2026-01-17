@@ -86,7 +86,7 @@ export class PopupManager {
 						(ruby) => {
 							ruby.createSpan({ text: expression });
 							ruby.createEl("rt", { text: reading });
-						}
+						},
 					);
 				}
 
@@ -105,12 +105,12 @@ export class PopupManager {
 									cls: "popup-tag",
 									attr: {
 										title: this.dictionaryManager.getTagDescription(
-											tag
+											tag,
 										),
 									},
 								});
 							});
-						}
+						},
 					);
 				}
 
@@ -143,13 +143,13 @@ export class PopupManager {
 															cls: "popup-tag",
 															attr: {
 																title: this.dictionaryManager.getTagDescription(
-																	tag
+																	tag,
 																),
 															},
-														}
+														},
 													);
 												});
-											}
+											},
 										);
 									}
 
@@ -164,7 +164,7 @@ export class PopupManager {
 														ul.createEl("li");
 													this.renderStructuredContent(
 														li,
-														formItem
+														formItem,
 													);
 
 													// Check if it ended up empty (Defensive cleanup)
@@ -180,18 +180,18 @@ export class PopupManager {
 												if (ul.children.length === 0) {
 													ul.remove();
 												}
-											}
+											},
 										);
 									} else {
 										this.renderStructuredContent(
 											termListItemContainer,
-											content
+											content,
 										);
 									}
 								});
 							});
 						});
-					}
+					},
 				);
 			});
 		});
@@ -203,7 +203,7 @@ export class PopupManager {
 			| string
 			| number
 			| StructuredContent
-			| (string | StructuredContent)[]
+			| (string | StructuredContent)[],
 	) {
 		if (typeof content === "string" || typeof content === "number") {
 			const text = String(content).trim();
@@ -219,49 +219,47 @@ export class PopupManager {
 			});
 			return;
 		}
-
-		const sc = content as StructuredContent;
-
-		const tagName = sc.tag || "span";
+		const tagName = content.tag || "span";
 
 		container.createEl(
 			tagName as keyof HTMLElementTagNameMap,
 			{
-				attr: sc.lang ? { lang: sc.lang } : undefined,
+				attr: content.lang ? { lang: content.lang } : undefined,
 				cls:
-					sc.tag === "ul"
+					content.tag === "ul"
 						? "popup-term-list"
-						: sc.data?.class
-						? "popup-term-" + sc.data?.class
-						: undefined,
+						: content.data?.class
+							? "popup-term-" + content.data?.class
+							: undefined,
 				href:
-					sc.href && /^https?:\/\//i.test(sc.href)
-						? sc.href
+					content.href && /^https?:\/\//i.test(content.href)
+						? content.href
 						: undefined,
 			},
 			(element) => {
-				if (sc.content) {
+				if (content.content) {
 					// If it's a link without href, make it clickable to lookup
 					if (
-						sc.tag === "a" &&
-						(!sc.href || /^https?:\/\//i.test(sc.href) === false)
+						content.tag === "a" &&
+						(!content.href ||
+							/^https?:\/\//i.test(content.href) === false)
 					) {
 						element.addEventListener("click", async (e) => {
 							e.preventDefault();
 							const res = await this.dictionaryManager.lookup(
-								sc.content as string
+								content.content as string,
 							);
 							this.updatePopupContent(res);
 						});
 					}
-					this.renderStructuredContent(element, sc.content);
+					this.renderStructuredContent(element, content.content);
 				}
-			}
+			},
 		);
 	}
 
 	private groupTermsByExpressionReading(
-		terms: ProcessedTerm[]
+		terms: ProcessedTerm[],
 	): Map<string, ProcessedTerm[]> {
 		const groups = new Map<string, ProcessedTerm[]>();
 
