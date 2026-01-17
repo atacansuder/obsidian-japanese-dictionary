@@ -75,7 +75,11 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
-	async display(): Promise<void> {
+	display() {
+		void this.renderSettings();
+	}
+
+	private async renderSettings(): Promise<void> {
 		const { containerEl } = this;
 		containerEl.empty();
 
@@ -127,7 +131,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 					button
 						.setButtonText("Delete dictionary")
 						.setWarning()
-						.onClick(async () => {
+						.onClick(() => {
 							new ConfirmationModal(
 								this.app,
 								"Delete dictionary",
