@@ -108,7 +108,6 @@ export class DictionaryImporter {
 		const totalFiles = termFiles.length + tagFiles.length;
 		let filesProcessed = 0;
 
-		let processedCount = 0;
 		new Notice(`Importing ${meta.title}...`);
 
 		for (const filename of termFiles) {
@@ -136,8 +135,6 @@ export class DictionaryImporter {
 
 			const promises = termsToAdd.map((term) => termStore.add(term));
 			await Promise.all(promises);
-
-			processedCount += termsToAdd.length;
 
 			await tx.done;
 

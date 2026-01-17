@@ -1,4 +1,4 @@
-import { openDB, DBSchema, IDBPDatabase, deleteDB } from "idb";
+import { openDB, IDBPDatabase, deleteDB } from "idb";
 import { ProcessedTerm, YomitanDB } from "./types";
 import { Deinflector } from "./deinflector";
 import { Notice } from "obsidian";
@@ -56,12 +56,12 @@ export class DictionaryManager {
 			const expressionMatches = await db.getAllFromIndex(
 				"terms",
 				"expression",
-				term
+				term,
 			);
 			const readingMatches = await db.getAllFromIndex(
 				"terms",
 				"reading",
-				term
+				term,
 			);
 
 			const rawMatches = [...expressionMatches, ...readingMatches];
@@ -81,7 +81,7 @@ export class DictionaryManager {
 		}
 
 		return Array.from(uniqueResults.values()).sort(
-			(a, b) => b.score - a.score
+			(a, b) => b.score - a.score,
 		);
 	}
 
@@ -93,7 +93,7 @@ export class DictionaryManager {
 	 */
 	private isValidDeinflection(
 		deinflectRules: number,
-		termRules: string[]
+		termRules: string[],
 	): boolean {
 		if (deinflectRules === 0) return true;
 
@@ -183,7 +183,7 @@ export class DictionaryManager {
 		await deleteDB("yomitan-dict", {
 			blocked: () => {
 				new Notice(
-					"Delete database request blocked. Close other tabs or plugins."
+					"Delete database request blocked. Close other tabs or plugins.",
 				);
 			},
 		});
