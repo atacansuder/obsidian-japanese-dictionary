@@ -65,14 +65,13 @@ export class JapaneseScanner {
 	};
 
 	private performScan(evt: MouseEvent) {
-		// This is called range, but its start and end offsets are the same value so its length is 0 basically
-		const range = document.caretRangeFromPoint(evt.clientX, evt.clientY);
-		if (!range) {
+		const caretPos = this.getCaretPosition(evt.clientX, evt.clientY);
+		if (!caretPos) {
 			return;
 		}
 
-		let node = range.startContainer;
-		let offset = range.startOffset;
+		let node = caretPos.node;
+		let offset = caretPos.offset;
 
 		if (this.currentHighlightRange) {
 			const isAtEndBoundary =
@@ -149,9 +148,8 @@ export class JapaneseScanner {
 			const currentText = text.substring(startOffset, startOffset + i);
 			if (!isJapanese(currentText)) continue;
 
-			const results = await this.plugin.dictionaryManager.lookup(
-				currentText
-			);
+			const results =
+				await this.plugin.dictionaryManager.lookup(currentText);
 
 			if (results && results.length > 0) {
 				this.highlightText(node, startOffset, startOffset + i, results);
@@ -164,7 +162,7 @@ export class JapaneseScanner {
 		node: Node,
 		startOffset: number,
 		endOffset: number,
-		results: ProcessedTerm[]
+		results: ProcessedTerm[],
 	) {
 		if (!node.isConnected) return;
 
@@ -196,4 +194,17 @@ export class JapaneseScanner {
 
 		this.clearHighlight();
 	};
+
+	private getCaretPosition(
+		x: number,
+		y: number,
+	): { node: Node; offset: number } | null {
+		if (document.caretPositionFromPoint) {
+			const position = document.caretPositionFromPoint(x, y);
+			if (!position) return null;
+			return { node: position.offsetNode, offset: position.offset };
+		}
+
+		return null;
+	}
 }

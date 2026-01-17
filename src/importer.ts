@@ -1,6 +1,7 @@
 import { App, Platform, FileSystemAdapter, Notice } from "obsidian";
 import * as path from "path";
 import * as JSZip from "jszip";
+import { shell } from "electron";
 import { DictionaryManager } from "./manager";
 import {
 	RawTermEntry,
@@ -19,23 +20,22 @@ export class DictionaryImporter {
 	constructor(
 		app: App,
 		pluginManifestDir: string,
-		dictionaryManager: DictionaryManager
+		dictionaryManager: DictionaryManager,
 	) {
 		this.app = app;
 		this.pluginManifestDir = pluginManifestDir;
 		this.dictionaryManager = dictionaryManager;
 	}
 
-	async openPluginFolder() {
+	openPluginFolder() {
 		if (!Platform.isDesktop) {
 			return;
 		}
 		const adapter = this.app.vault.adapter as FileSystemAdapter;
 		const fullPath = path.join(
 			adapter.getBasePath(),
-			this.pluginManifestDir
+			this.pluginManifestDir,
 		);
-		const { shell } = require("electron");
 		shell.openPath(fullPath);
 	}
 
@@ -44,7 +44,7 @@ export class DictionaryImporter {
 
 		const listResult = await adapter.list(this.pluginManifestDir);
 		const zipFiles = listResult.files.filter(
-			(filePath) => path.extname(filePath).toLowerCase() === ".zip"
+			(filePath) => path.extname(filePath).toLowerCase() === ".zip",
 		);
 
 		if (zipFiles.length === 0) {
@@ -61,7 +61,7 @@ export class DictionaryImporter {
 			new Notice("Dictionary imported successfully!");
 		} catch (error) {
 			new Notice(
-				`Error importing dictionary: ${(error as Error).message}`
+				`Error importing dictionary: ${(error as Error).message}`,
 			);
 			console.error("Error importing dictionary:", error);
 		}
@@ -69,7 +69,7 @@ export class DictionaryImporter {
 
 	private async processZip(
 		data: ArrayBuffer,
-		onProgress?: (percentage: number) => void
+		onProgress?: (percentage: number) => void,
 	) {
 		const zip = await JSZip.loadAsync(data);
 
@@ -92,12 +92,12 @@ export class DictionaryImporter {
 
 		const termFiles = Object.keys(zip.files).filter(
 			(filename) =>
-				filename.startsWith("term_bank_") && filename.endsWith(".json")
+				filename.startsWith("term_bank_") && filename.endsWith(".json"),
 		);
 
 		const tagFiles = Object.keys(zip.files).filter(
 			(filename) =>
-				filename.startsWith("tag_bank_") && filename.endsWith(".json")
+				filename.startsWith("tag_bank_") && filename.endsWith(".json"),
 		);
 
 		const totalFiles = termFiles.length + tagFiles.length;
