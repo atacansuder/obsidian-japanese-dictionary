@@ -10,7 +10,7 @@ import {
 import { TriggerKeys } from "./types";
 
 export interface JapanesePopupDictionarySettings {
-	triggerKey: string;
+	triggerKey: TriggerKeys;
 	isDictionaryOn: boolean;
 }
 
@@ -102,7 +102,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 					.addOption(TriggerKeys.Shift, "Shift")
 					.setValue(this.plugin.settings.triggerKey)
 					.onChange(async (value) => {
-						this.plugin.settings.triggerKey = value;
+						this.plugin.settings.triggerKey = value as TriggerKeys;
 						await this.plugin.saveSettings();
 					});
 			});
