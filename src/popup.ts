@@ -244,12 +244,11 @@ export class PopupManager {
 						(!content.href ||
 							/^https?:\/\//i.test(content.href) === false)
 					) {
-						element.addEventListener("click", async (e) => {
+						element.addEventListener("click", (e) => {
 							e.preventDefault();
-							const res = await this.dictionaryManager.lookup(
+							void this.handleLinkClick(
 								content.content as string,
 							);
-							this.updatePopupContent(res);
 						});
 					}
 					this.renderStructuredContent(element, content.content);
@@ -274,5 +273,14 @@ export class PopupManager {
 		}
 
 		return groups;
+	}
+
+	private async handleLinkClick(text: string) {
+		try {
+			const res = await this.dictionaryManager.lookup(text);
+			this.updatePopupContent(res);
+		} catch (err) {
+			console.error("Link lookup failed:", err);
+		}
 	}
 }
