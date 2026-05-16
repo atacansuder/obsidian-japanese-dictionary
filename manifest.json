@@ -1,7 +1,7 @@
 {
 	"id": "japanese-popup-dictionary",
 	"name": "Japanese Popup Dictionary",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"minAppVersion": "1.10.0",
 	"description": "Fast, offline Japanese popup dictionary using Yomitan dictionaries.",
 	"author": "Atacan Süder",
