@@ -83,7 +83,7 @@ export class DictionaryImporter {
 			throw new Error("Invalid Yomitan dictionary: index.json missing");
 
 		const indexContent = await indexFile.async("string");
-		const meta: YomitanIndex = JSON.parse(indexContent);
+		const meta: YomitanIndex = JSON.parse(indexContent) as YomitanIndex;
 
 		const db = await this.dictionaryManager.getDB();
 
@@ -115,7 +115,9 @@ export class DictionaryImporter {
 			if (!file) continue;
 
 			const content = await file.async("string");
-			const rawTerms: RawTermEntry[] = JSON.parse(content);
+			const rawTerms: RawTermEntry[] = JSON.parse(
+				content,
+			) as RawTermEntry[];
 
 			const tx = db.transaction("terms", "readwrite");
 			const termStore = tx.objectStore("terms");
@@ -150,7 +152,9 @@ export class DictionaryImporter {
 				if (!file) continue;
 
 				const content = await file.async("string");
-				const rawTags: RawTagEntry[] = JSON.parse(content);
+				const rawTags: RawTagEntry[] = JSON.parse(
+					content,
+				) as RawTagEntry[];
 
 				const txTags = db.transaction("tag_defs", "readwrite");
 				const tagStore = txTags.objectStore("tag_defs");

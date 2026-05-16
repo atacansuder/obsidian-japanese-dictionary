@@ -243,7 +243,10 @@ export class JapaneseScanner {
 
 		// Standard API
 		if (doc.caretPositionFromPoint) {
-			const position = doc.caretPositionFromPoint(x, y);
+			const position = doc.caretPositionFromPoint(
+				x,
+				y,
+			) as CaretPosition | null;
 			if (!position) return null;
 			return { node: position.offsetNode, offset: position.offset };
 		}
