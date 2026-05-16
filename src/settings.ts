@@ -120,9 +120,9 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 			);
 			desc.createEl("br");
 			desc.createEl("br");
-			desc.createEl("div", { text: `Title: ${stats.title}` });
-			desc.createEl("div", { text: `Total terms: ${stats.count}` });
-			desc.createEl("div", { text: `Size: ${stats.size}` });
+			desc.createDiv({ text: `Title: ${stats.title}` });
+			desc.createDiv({ text: `Total terms: ${stats.count}` });
+			desc.createDiv({ text: `Size: ${stats.size}` });
 
 			new Setting(containerEl)
 				.setName("Delete dictionary")
@@ -170,17 +170,17 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 			importDesc.createEl("small", {
 				text: "(recommended: " + "JMdict" + " or " + "Jitendex" + ")",
 			});
-			importDesc.createEl("div", {
+			importDesc.createDiv({
 				text: "2. Click the folder icon to open the plugin location.",
 			});
-			importDesc.createEl("div", {
+			importDesc.createDiv({
 				text: "3. Place your dictionary .zip file you downloaded inside. Make sure that there is only one .zip file in the folder.",
 			});
-			importDesc.createEl("div", {
+			importDesc.createDiv({
 				text: "4. Click the '" + "Import" + "' button.",
 			});
 			importDesc.createEl("br");
-			importDesc.createEl("div", {
+			importDesc.createDiv({
 				text: "Feel free to delete the .zip file after importing.",
 			});
 
