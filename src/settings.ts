@@ -114,7 +114,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 		const stats = await this.plugin.dictionaryManager.getDictionaryStats();
 
 		if (stats) {
-			const desc = document.createDocumentFragment();
+			const desc = activeDocument.createDocumentFragment();
 			desc.append(
 				"Remove the dictionary database to free up space or import a different one.",
 			);
@@ -149,7 +149,7 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 						});
 				});
 		} else {
-			const importDesc = document.createDocumentFragment();
+			const importDesc = activeDocument.createDocumentFragment();
 			importDesc.append(
 				"Required to enable lookups. Follow these steps:",
 			);

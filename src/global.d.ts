@@ -11,7 +11,7 @@ declare global {
 		entries(): IterableIterator<AbstractRange>;
 		forEach(
 			callback: (range: AbstractRange, highlight: Highlight) => void,
-			thisArg?: unknown
+			thisArg?: unknown,
 		): void;
 		has(range: AbstractRange): boolean;
 		keys(): IterableIterator<AbstractRange>;
@@ -30,6 +30,10 @@ declare global {
 		get(name: string): Highlight | undefined;
 		has(name: string): boolean;
 		clear(): void;
+	}
+
+	interface Window {
+		CSS: CSS;
 	}
 
 	interface CSS {

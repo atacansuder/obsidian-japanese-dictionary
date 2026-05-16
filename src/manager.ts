@@ -128,7 +128,7 @@ export class DictionaryManager {
 		count: number;
 		size: string;
 	} | null> {
-		const dbNames = await window.indexedDB.databases();
+		const dbNames = await activeWindow.indexedDB.databases();
 		const exists = dbNames.some((d) => d.name === "yomitan-dict");
 		if (!exists) return null;
 

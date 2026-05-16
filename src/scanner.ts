@@ -8,6 +8,9 @@ export class JapaneseScanner {
 	plugin: JapanesePopupDictionary;
 	app: App;
 	currentHighlightRange: Range | null = null;
+	// Track which window currently owns the highlight so we can clear it
+	// correctly even if the user switches focus between windows.
+	private currentHighlightWindow: Window | null = null;
 	timer: number | null = null;
 	popupManager: PopupManager;
 
@@ -59,13 +62,17 @@ export class JapaneseScanner {
 			clearTimeout(this.timer);
 		}
 
-		this.timer = window.setTimeout(() => {
-			this.performScan(evt);
+		// Capture the source window from the event. evt.view is the Window
+		// that dispatched the event, which may be a secondary window.
+		const win = (evt.view ?? window) as Window;
+
+		this.timer = activeWindow.setTimeout(() => {
+			this.performScan(evt, win);
 		}, 100);
 	};
 
-	private performScan(evt: MouseEvent) {
-		const caretPos = this.getCaretPosition(evt.clientX, evt.clientY);
+	private performScan(evt: MouseEvent, win: Window) {
+		const caretPos = this.getCaretPosition(evt.clientX, evt.clientY, win);
 		if (!caretPos) {
 			return;
 		}
@@ -114,13 +121,13 @@ export class JapaneseScanner {
 		) {
 			const rubyElem = node.parentElement;
 			const cleanText = this.getRubyBaseText(rubyElem);
-			void this.runScanner(node, cleanText, 0);
+			void this.runScanner(node, cleanText, 0, win);
 			return;
 		}
 
 		if (node.nodeType === Node.TEXT_NODE) {
 			const fullText = node.textContent || "";
-			void this.runScanner(node, fullText, offset);
+			void this.runScanner(node, fullText, offset, win);
 		}
 	}
 
@@ -139,7 +146,12 @@ export class JapaneseScanner {
 		return text;
 	}
 
-	private async runScanner(node: Node, text: string, startOffset: number) {
+	private async runScanner(
+		node: Node,
+		text: string,
+		startOffset: number,
+		win: Window,
+	) {
 		try {
 			const limit = 20;
 			const availableLength = text.length - startOffset;
@@ -161,6 +173,7 @@ export class JapaneseScanner {
 						startOffset,
 						startOffset + i,
 						results,
+						win,
 					);
 					return;
 				}
@@ -175,6 +188,7 @@ export class JapaneseScanner {
 		startOffset: number,
 		endOffset: number,
 		results: ProcessedTerm[],
+		win: Window,
 	) {
 		if (!node.isConnected) return;
 
@@ -182,15 +196,28 @@ export class JapaneseScanner {
 		range.setStart(node, startOffset);
 		range.setEnd(node, endOffset);
 		this.currentHighlightRange = range;
+		this.currentHighlightWindow = win;
 
 		const highlight = new Highlight(range);
-		CSS.highlights.set("japanese-highlight", highlight);
+		// Use the event source window's CSS.highlights so the highlight renders
+		// in the correct window rather than always the main window.
+		win.CSS.highlights.set("japanese-highlight", highlight);
 
-		this.popupManager.showPopup(range.getBoundingClientRect(), results);
+		this.popupManager.showPopup(
+			range.getBoundingClientRect(),
+			results,
+			win,
+		);
 	}
 
 	private clearHighlight() {
-		CSS.highlights.delete("japanese-highlight");
+		// Clear from whichever window currently owns the highlight.
+		if (this.currentHighlightWindow) {
+			this.currentHighlightWindow.CSS.highlights.delete(
+				"japanese-highlight",
+			);
+			this.currentHighlightWindow = null;
+		}
 		this.currentHighlightRange = null;
 		this.popupManager.hidePopup();
 	}
@@ -210,17 +237,21 @@ export class JapaneseScanner {
 	private getCaretPosition(
 		x: number,
 		y: number,
+		win: Window,
 	): { node: Node; offset: number } | null {
+		const doc = win.document;
+
 		// Standard API
-		if (document.caretPositionFromPoint) {
-			const position = document.caretPositionFromPoint(x, y);
+		if (doc.caretPositionFromPoint) {
+			const position = doc.caretPositionFromPoint(x, y);
 			if (!position) return null;
 			return { node: position.offsetNode, offset: position.offset };
 		}
 
-		// Chromium / Electron API (Used by Obsidian). The standard API should work but leaving it here just in case...
-		if (document.caretRangeFromPoint) {
-			const range = document.caretRangeFromPoint(x, y);
+		// Chromium / Electron API (Used by Obsidian). The standard API should
+		// work but leaving it here just in case.
+		if (doc.caretRangeFromPoint) {
+			const range = doc.caretRangeFromPoint(x, y);
 			if (!range) return null;
 			return { node: range.startContainer, offset: range.startOffset };
 		}

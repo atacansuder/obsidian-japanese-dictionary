@@ -35,9 +35,24 @@ export default class JapanesePopupDictionary extends Plugin {
 
 		this.popupManager = new PopupManager(this.dictionaryManager);
 		this.scanner = new JapaneseScanner(this, this.popupManager);
-		this.registerDomEvent(document, "mousemove", this.scanner.handleHover);
+
+		this.registerWindowEvents(activeWindow);
+
+		this.registerEvent(
+			this.app.workspace.on("window-open", (_workspaceWindow, win) => {
+				this.registerWindowEvents(win);
+			}),
+		);
+	}
+
+	private registerWindowEvents(win: Window) {
 		this.registerDomEvent(
-			document,
+			win.activeDocument,
+			"mousemove",
+			this.scanner.handleHover,
+		);
+		this.registerDomEvent(
+			win.activeDocument,
 			"mousedown",
 			this.scanner.handleDocumentClick,
 		);
