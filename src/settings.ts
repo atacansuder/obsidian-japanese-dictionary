@@ -1,4 +1,4 @@
-import JapanesePopupDictionary from "main";
+import JapanesePopupDictionary from "../main";
 import {
 	App,
 	Notice,

@@ -30,13 +30,13 @@ export class DictionaryManager {
 
 				db.createObjectStore("tag_defs", { keyPath: "name" });
 			},
-			blocking() {
+			blocking: () => {
 				if (this.db) {
 					this.db.close();
 					this.db = null;
 				}
 			},
-			terminated() {
+			terminated: () => {
 				this.db = null;
 			},
 		});

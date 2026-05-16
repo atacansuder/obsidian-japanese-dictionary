@@ -211,10 +211,18 @@ export class JapaneseScanner {
 		x: number,
 		y: number,
 	): { node: Node; offset: number } | null {
+		// Standard API
 		if (document.caretPositionFromPoint) {
 			const position = document.caretPositionFromPoint(x, y);
 			if (!position) return null;
 			return { node: position.offsetNode, offset: position.offset };
+		}
+
+		// Chromium / Electron API (Used by Obsidian). The standard API should work but leaving it here just in case...
+		if (document.caretRangeFromPoint) {
+			const range = document.caretRangeFromPoint(x, y);
+			if (!range) return null;
+			return { node: range.startContainer, offset: range.startOffset };
 		}
 
 		return null;
