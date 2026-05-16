@@ -1,20 +1,20 @@
 import { Plugin } from "obsidian";
-import { DictionaryImporter } from "src/importer";
-import { JapaneseScanner } from "src/scanner";
-import { DictionaryManager } from "src/manager";
+import { DictionaryImporter } from "./src/importer";
+import { JapaneseScanner } from "./src/scanner";
+import { DictionaryManager } from "./src/manager";
 import {
 	DEFAULT_SETTINGS,
 	JapanesePopupDictionarySettings,
 	JapanesePopupDictionarySettingTab,
-} from "src/settings";
-import { PopupManager } from "src/popup";
+} from "./src/settings";
+import { PopupManager } from "./src/popup";
 
 export default class JapanesePopupDictionary extends Plugin {
-	settings: JapanesePopupDictionarySettings;
-	scanner: JapaneseScanner;
-	importer: DictionaryImporter;
-	dictionaryManager: DictionaryManager;
-	popupManager: PopupManager;
+	settings!: JapanesePopupDictionarySettings;
+	scanner!: JapaneseScanner;
+	importer!: DictionaryImporter;
+	dictionaryManager!: DictionaryManager;
+	popupManager!: PopupManager;
 
 	async onload() {
 		await this.loadSettings();
@@ -26,20 +26,35 @@ export default class JapanesePopupDictionary extends Plugin {
 		this.importer = new DictionaryImporter(
 			this.app,
 			this.manifest.dir!,
-			this.dictionaryManager
+			this.dictionaryManager,
 		);
 
 		this.addSettingTab(
-			new JapanesePopupDictionarySettingTab(this.app, this)
+			new JapanesePopupDictionarySettingTab(this.app, this),
 		);
 
 		this.popupManager = new PopupManager(this.dictionaryManager);
 		this.scanner = new JapaneseScanner(this, this.popupManager);
-		this.registerDomEvent(document, "mousemove", this.scanner.handleHover);
+
+		this.registerWindowEvents(activeWindow);
+
+		this.registerEvent(
+			this.app.workspace.on("window-open", (_workspaceWindow, win) => {
+				this.registerWindowEvents(win);
+			}),
+		);
+	}
+
+	private registerWindowEvents(win: Window) {
 		this.registerDomEvent(
-			document,
+			win.activeDocument,
+			"mousemove",
+			this.scanner.handleHover,
+		);
+		this.registerDomEvent(
+			win.activeDocument,
 			"mousedown",
-			this.scanner.handleDocumentClick
+			this.scanner.handleDocumentClick,
 		);
 	}
 
@@ -54,7 +69,7 @@ export default class JapanesePopupDictionary extends Plugin {
 		this.settings = Object.assign(
 			{},
 			DEFAULT_SETTINGS,
-			await this.loadData()
+			(await this.loadData()) as Partial<JapanesePopupDictionarySettings>,
 		);
 	}
 

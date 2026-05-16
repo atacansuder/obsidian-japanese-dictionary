@@ -1,6 +1,6 @@
 {
 	"name": "japanese-popup-dictionary",
-	"version": "1.0.0",
+	"version": "1.0.1",
 	"description": "Fast, offline Japanese popup dictionary plugin using Yomitan dictionaries for Obsidian (https://obsidian.md)",
 	"main": "main.js",
 	"scripts": {
@@ -15,7 +15,6 @@
 		"@types/node": "^16.11.6",
 		"@typescript-eslint/eslint-plugin": "^8.48.0",
 		"@typescript-eslint/parser": "^8.48.0",
-		"builtin-modules": "3.3.0",
 		"electron": "^40.0.0",
 		"esbuild": "0.17.3",
 		"eslint": "^8.57.1",
@@ -24,7 +23,7 @@
 		"typescript": "^5.9.3"
 	},
 	"dependencies": {
-		"idb": "^8.0.3",
-		"jszip": "^3.10.1"
+		"fflate": "^0.8.3",
+		"idb": "^8.0.3"
 	}
 }

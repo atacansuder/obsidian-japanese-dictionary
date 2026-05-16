@@ -7,15 +7,32 @@ export class PopupManager {
 
 	constructor(dictionaryManager: DictionaryManager) {
 		this.dictionaryManager = dictionaryManager;
-		this.createPopup();
+		// Create an initial popup in the main window so it exists for the
+		// common single-window case without waiting for the first hover.
+		this.createPopupInWindow(window);
 	}
 
-	private createPopup() {
-		this.popupEl = document.body.createDiv({
+	private createPopupInWindow(win: Window) {
+		this.popupEl = win.document.body.createDiv({
 			cls: "japanese-dictionary-popup",
 			attr: { id: "japanese-dictionary-popup" },
 		});
 		this.popupEl.hide();
+	}
+
+	/**
+	 * Ensures the popup element lives in the correct window's document.
+	 * When the user hovers in a secondary window the popup must be attached
+	 * there; otherwise it would be invisible or positioned incorrectly.
+	 */
+	private ensurePopupInWindow(win: Window) {
+		if (this.popupEl && this.popupEl.ownerDocument !== win.document) {
+			this.popupEl.remove();
+			this.popupEl = null;
+		}
+		if (!this.popupEl) {
+			this.createPopupInWindow(win);
+		}
 	}
 
 	destroyPopup() {
@@ -25,10 +42,8 @@ export class PopupManager {
 		}
 	}
 
-	showPopup(rect: DOMRect, terms: ProcessedTerm[]) {
-		if (!this.popupEl) {
-			this.createPopup();
-		}
+	showPopup(rect: DOMRect, terms: ProcessedTerm[], win: Window) {
+		this.ensurePopupInWindow(win);
 
 		this.updatePopupContent(terms);
 

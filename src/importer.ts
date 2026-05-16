@@ -1,6 +1,6 @@
 import { App, Platform, FileSystemAdapter, Notice } from "obsidian";
 import * as path from "path";
-import * as JSZip from "jszip";
+import { unzipSync } from "fflate";
 import { shell } from "electron";
 import { DictionaryManager } from "./manager";
 import {
@@ -76,14 +76,16 @@ export class DictionaryImporter {
 		data: ArrayBuffer,
 		onProgress?: (percentage: number) => void,
 	) {
-		const zip = await JSZip.loadAsync(data);
+		const uint8 = new Uint8Array(data);
+		const files = unzipSync(uint8);
+		const decoder = new TextDecoder();
 
-		const indexFile = zip.file("index.json");
-		if (!indexFile)
+		const indexData = files["index.json"];
+		if (!indexData)
 			throw new Error("Invalid Yomitan dictionary: index.json missing");
 
-		const indexContent = await indexFile.async("string");
-		const meta: YomitanIndex = JSON.parse(indexContent);
+		const indexContent = decoder.decode(indexData);
+		const meta: YomitanIndex = JSON.parse(indexContent) as YomitanIndex;
 
 		const db = await this.dictionaryManager.getDB();
 
@@ -95,12 +97,12 @@ export class DictionaryImporter {
 
 		await db.put("dictionaries", meta);
 
-		const termFiles = Object.keys(zip.files).filter(
+		const termFiles = Object.keys(files).filter(
 			(filename) =>
 				filename.startsWith("term_bank_") && filename.endsWith(".json"),
 		);
 
-		const tagFiles = Object.keys(zip.files).filter(
+		const tagFiles = Object.keys(files).filter(
 			(filename) =>
 				filename.startsWith("tag_bank_") && filename.endsWith(".json"),
 		);
@@ -111,11 +113,13 @@ export class DictionaryImporter {
 		new Notice(`Importing ${meta.title}...`);
 
 		for (const filename of termFiles) {
-			const file = zip.file(filename);
-			if (!file) continue;
+			const fileData = files[filename];
+			if (!fileData) continue;
 
-			const content = await file.async("string");
-			const rawTerms: RawTermEntry[] = JSON.parse(content);
+			const content = decoder.decode(fileData);
+			const rawTerms: RawTermEntry[] = JSON.parse(
+				content,
+			) as RawTermEntry[];
 
 			const tx = db.transaction("terms", "readwrite");
 			const termStore = tx.objectStore("terms");
@@ -146,11 +150,13 @@ export class DictionaryImporter {
 
 		if (tagFiles.length > 0) {
 			for (const filename of tagFiles) {
-				const file = zip.file(filename);
-				if (!file) continue;
+				const fileData = files[filename];
+				if (!fileData) continue;
 
-				const content = await file.async("string");
-				const rawTags: RawTagEntry[] = JSON.parse(content);
+				const content = decoder.decode(fileData);
+				const rawTags: RawTagEntry[] = JSON.parse(
+					content,
+				) as RawTagEntry[];
 
 				const txTags = db.transaction("tag_defs", "readwrite");
 				const tagStore = txTags.objectStore("tag_defs");
