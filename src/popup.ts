@@ -285,7 +285,7 @@ export class PopupManager {
 						element.addEventListener("click", (e) => {
 							e.preventDefault();
 							void this.handleLinkClick(
-								content.content as string,
+								this.extractTextContent(content.content),
 							);
 						});
 					}
@@ -320,5 +320,25 @@ export class PopupManager {
 		} catch (err) {
 			console.error("Link lookup failed:", err);
 		}
+	}
+
+	private extractTextContent(
+		content:
+			| string
+			| number
+			| StructuredContent
+			| (string | StructuredContent)[],
+	): string {
+		if (typeof content === "string") return content;
+		if (typeof content === "number") return String(content);
+		if (Array.isArray(content)) {
+			return content
+				.map((item) => this.extractTextContent(item))
+				.join("");
+		}
+
+		if (content.tag === "rt" || content.tag === "rp") return "";
+		if (content.content) return this.extractTextContent(content.content);
+		return "";
 	}
 }
