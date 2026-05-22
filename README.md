@@ -33,7 +33,7 @@ A fast, offline popup dictionary for Japanese learners using Obsidian.
 Before the plugin works, you must import a dictionary file. This plugin uses the **Yomitan (formerly Yomichan)** dictionary format.
 
 1.  **Download a Dictionary:**
-    - Visit [this links](https://yomitan.wiki/dictionaries/#japanese) and download one of the dictionaries.
+    - Visit [this link](https://yomitan.wiki/dictionaries/#japanese) and download one of the dictionaries.
     - Recommended: [JMDict](https://github.com/yomidevs/jmdict-yomitan/releases) or [Jitendex](https://github.com/stephenmk/Jitendex/releases).
     - Ensure the file is a `.zip` file (do not unzip it).
 
@@ -80,9 +80,25 @@ Imported dictionaries are stored in Obsidian's internal database (IndexedDB) and
 
 If you want to contribute or build from source:
 
-1.  Clone the repository.
-2.  Run `npm install` to install dependencies.
-3.  Run `npm run dev` to start compilation in watch mode.
+1. Clone the repository **directly into your vault's plugin folder** so Obsidian can pick it up:
+    ```
+    cd /path/to/your/vault/.obsidian/plugins
+    git clone https://github.com/atacansuder/obsidian-japanese-dictionary
+    ```
+2. Run `npm install` to install dependencies.
+3. Run `npm run dev` to start compilation in watch mode.
+4. In Obsidian, go to **Settings** > **Community Plugins**, find the plugin and enable it.
+5. After making changes, reload the plugin by toggling it off and on, or use the [Hot Reload](https://github.com/pjeby/hot-reload) community plugin.
+
+## Bugs & Feature Requests
+
+Found a bug or have an idea for a new feature? Please [open an issue](https://github.com/atacansuder/obsidian-japanese-dictionary/issues) on GitHub.
+
+When reporting a bug, please include:
+
+- A description of what happened and what you expected to happen.
+- Steps to reproduce the issue.
+- Your Obsidian version and OS.
 
 ## Support the Developer
 
