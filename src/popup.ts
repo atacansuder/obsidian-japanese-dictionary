@@ -1,5 +1,6 @@
 import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
+import { isExternalLink } from "./utils";
 
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
@@ -269,19 +270,12 @@ export class PopupManager {
 						: content.data?.class
 							? "popup-term-" + content.data?.class
 							: undefined,
-				href:
-					content.href && /^https?:\/\//i.test(content.href)
-						? content.href
-						: undefined,
+				href: isExternalLink(content.href) ? content.href : undefined,
 			},
 			(element) => {
 				if (content.content) {
 					// If it's a link without href, make it clickable to lookup
-					if (
-						content.tag === "a" &&
-						(!content.href ||
-							/^https?:\/\//i.test(content.href) === false)
-					) {
+					if (content.tag === "a" && !isExternalLink(content.href)) {
 						element.addEventListener("click", (e) => {
 							e.preventDefault();
 							void this.handleLinkClick(
