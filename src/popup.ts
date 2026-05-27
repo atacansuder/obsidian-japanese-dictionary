@@ -2,6 +2,7 @@ import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
 import { isExternalLink } from "./utils";
 import { getFuriganaSegments } from "./furigana";
+import { getJmdictFormsTableSymbolTitle, isJmdictFormsTable } from "./jmdict";
 
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
@@ -270,6 +271,7 @@ export class PopupManager {
 			| StructuredContent
 			| (string | number | StructuredContent)[],
 		insideTableHeader = false,
+		insideJmdictFormsTable = false,
 	) {
 		if (typeof content === "string" || typeof content === "number") {
 			const text = String(content).trim();
@@ -285,15 +287,19 @@ export class PopupManager {
 					container,
 					item,
 					insideTableHeader,
+					insideJmdictFormsTable,
 				);
 			});
 			return;
 		}
 		const tagName = content.tag || "span";
 		const attrs: Record<string, string> = {};
+		const isInsideJmdictFormsTable =
+			insideJmdictFormsTable || isJmdictFormsTable(content);
 
 		if (content.lang) attrs.lang = content.lang;
 		if ((insideTableHeader || content.tag === "th") && content.title) {
+			attrs.title = content.title;
 			attrs["aria-label"] = content.title;
 		}
 
@@ -324,10 +330,16 @@ export class PopupManager {
 						element,
 						content.content,
 						insideTableHeader || content.tag === "th",
+						isInsideJmdictFormsTable,
 					);
 				}
 
 				this.renderFormCellMarker(element, content);
+				this.addJmdictFormsTableSymbolTitle(
+					element,
+					content,
+					isInsideJmdictFormsTable,
+				);
 			},
 		);
 	}
@@ -352,6 +364,21 @@ export class PopupManager {
 		if (title) {
 			markerElement.setAttr("aria-label", title);
 		}
+	}
+
+	private addJmdictFormsTableSymbolTitle(
+		element: HTMLElement,
+		content: StructuredContent,
+		insideJmdictFormsTable: boolean,
+	) {
+		if (!insideJmdictFormsTable || content.tag !== "td") return;
+		if (element.children.length > 0) return;
+
+		const symbol = element.innerText.trim();
+		const title = getJmdictFormsTableSymbolTitle(symbol);
+		if (!title) return;
+
+		element.setAttr("aria-label", title);
 	}
 
 	private groupTermsByExpressionReading(
