@@ -30,9 +30,14 @@ export type RawTermEntry = [
 ];
 
 export interface StructuredContent {
-	content: string | StructuredContent | (string | StructuredContent)[];
+	content?:
+		| string
+		| number
+		| StructuredContent
+		| (string | number | StructuredContent)[];
 	tag?: string;
 	lang?: string;
+	title?: string;
 	style?: Record<string, string>;
 	data?: Record<string, string>;
 	type?: string;

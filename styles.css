@@ -55,6 +55,63 @@
 			padding: var(--size-4-1) var(--size-4-2);
 			text-align: left;
 		}
+
+		table td[class*="popup-term-form-"] {
+			text-align: center;
+
+			> span {
+				clip-path: circle();
+				display: inline-block;
+				font-weight: var(--font-semibold);
+				min-width: var(--size-4-2);
+				padding: 0 var(--size-4-1);
+			}
+		}
+
+		table .popup-term-form-special {
+			color: var(--text-error, --color-red);
+		}
+
+		table .popup-term-form-pri > span {
+			background: radial-gradient(
+				var(--color-green) 50%,
+				var(--background-primary) 100%
+			);
+			color: --color-white;
+		}
+
+		table .popup-term-form-irr > span {
+			background: radial-gradient(
+				var(--color-red) 50%,
+				var(--background-primary) 100%
+			);
+			color: --color-white;
+		}
+
+		table .popup-term-form-out > span,
+		table .popup-term-form-old > span {
+			background: radial-gradient(
+				var(--color-blue) 50%,
+				var(--background-primary) 100%
+			);
+			color: --color-white;
+		}
+
+		table .popup-term-form-rare > span {
+			background: radial-gradient(
+				var(--color-purple) 50%,
+				var(--background-primary) 100%
+			);
+			color: --color-white;
+		}
+
+		table .popup-term-form-valid > span {
+			background: radial-gradient(
+				var(--text-normal) 50%,
+				var(--background-primary) 100%
+			);
+			color: var(--background-primary, --color-white);
+		}
 	}
 
 	.popup-tag,
