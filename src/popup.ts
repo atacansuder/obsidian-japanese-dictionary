@@ -1,6 +1,7 @@
 import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
 import { isExternalLink } from "./utils";
+import { getFuriganaSegments } from "./furigana";
 
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
@@ -113,21 +114,16 @@ export class PopupManager {
 				});
 
 				const [expression, reading] = key.split("|");
-				if (expression === reading) {
-					header.createSpan({
-						text: expression,
-						cls: "popup-term-expression",
-					});
-				} else {
-					header.createEl(
-						"ruby",
-						{ cls: "popup-term-expression" },
-						(ruby) => {
-							ruby.createSpan({ text: expression });
-							ruby.createEl("rt", { text: reading });
-						},
-					);
-				}
+				header.createSpan(
+					{ cls: "popup-term-expression" },
+					(expressionContainer) => {
+						this.renderExpressionWithFurigana(
+							expressionContainer,
+							expression,
+							reading,
+						);
+					},
+				);
 
 				const firstTerm = groupTerms[0];
 				if (
@@ -232,6 +228,26 @@ export class PopupManager {
 						});
 					},
 				);
+			});
+		});
+	}
+
+	private renderExpressionWithFurigana(
+		container: HTMLElement,
+		expression: string,
+		reading: string,
+	) {
+		const segments = getFuriganaSegments(expression, reading);
+
+		segments.forEach((segment) => {
+			if (!segment.reading) {
+				container.appendText(segment.text);
+				return;
+			}
+
+			container.createEl("ruby", {}, (ruby) => {
+				ruby.appendText(segment.text);
+				ruby.createEl("rt", { text: segment.reading });
 			});
 		});
 	}
