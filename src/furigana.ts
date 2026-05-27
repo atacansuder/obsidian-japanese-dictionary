@@ -18,54 +18,59 @@ export function getFuriganaSegments(
 
 	const blocks = getExpressionBlocks(expression);
 	const normalizedReading = normalizeKana(reading);
-	let readingIndex = 0;
+	const segments = alignBlocks(blocks, reading, normalizedReading, 0, 0);
 
-	return blocks.map((block, index) => {
-		if (!block.isKanji) {
-			const normalizedText = normalizeKana(block.text);
-			if (normalizedReading.startsWith(normalizedText, readingIndex)) {
-				readingIndex += normalizedText.length;
-			} else {
-				const matchIndex = normalizedReading.indexOf(
-					normalizedText,
-					readingIndex,
-				);
-				if (matchIndex !== -1) {
-					readingIndex = matchIndex + normalizedText.length;
-				}
-			}
+	return segments ?? [{ text: expression, reading }];
+}
 
-			return { text: block.text };
+function alignBlocks(
+	blocks: ExpressionBlock[],
+	reading: string,
+	normalizedReading: string,
+	blockIndex: number,
+	readingIndex: number,
+): FuriganaSegment[] | null {
+	if (blockIndex === blocks.length) {
+		return readingIndex === reading.length ? [] : null;
+	}
+
+	const block = blocks[blockIndex];
+
+	if (!block.isKanji) {
+		const normalizedText = normalizeKana(block.text);
+		if (!normalizedReading.startsWith(normalizedText, readingIndex)) {
+			return null;
 		}
 
-		const nextKanaBlock = blocks
-			.slice(index + 1)
-			.find((nextBlock) => !nextBlock.isKanji);
+		const rest = alignBlocks(
+			blocks,
+			reading,
+			normalizedReading,
+			blockIndex + 1,
+			readingIndex + normalizedText.length,
+		);
 
-		let blockReading: string;
-		if (nextKanaBlock) {
-			const normalizedAnchor = normalizeKana(nextKanaBlock.text);
-			const anchorIndex = normalizedReading.indexOf(
-				normalizedAnchor,
-				readingIndex,
-			);
+		return rest ? [{ text: block.text }, ...rest] : null;
+	}
 
-			if (anchorIndex === -1) {
-				blockReading = reading.slice(readingIndex);
-				readingIndex = reading.length;
-			} else {
-				blockReading = reading.slice(readingIndex, anchorIndex);
-				readingIndex = anchorIndex;
-			}
-		} else {
-			blockReading = reading.slice(readingIndex);
-			readingIndex = reading.length;
+	for (let endIndex = readingIndex + 1; endIndex <= reading.length; endIndex++) {
+		const rest = alignBlocks(
+			blocks,
+			reading,
+			normalizedReading,
+			blockIndex + 1,
+			endIndex,
+		);
+
+		if (rest) {
+			return [
+				{ text: block.text, reading: reading.slice(readingIndex, endIndex) },
+				...rest,
+			];
 		}
+	}
 
-		return blockReading === ""
-			? { text: block.text }
-			: { text: block.text, reading: blockReading };
-	});
+	return null;
 }
 
 function getExpressionBlocks(expression: string): ExpressionBlock[] {
