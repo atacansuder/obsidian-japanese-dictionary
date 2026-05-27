@@ -2,7 +2,11 @@ import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
 import { isExternalLink } from "./utils";
 import { getFuriganaSegments } from "./furigana";
-import { getJmdictFormsTableSymbolTitle, isJmdictFormsTable } from "./jmdict";
+import {
+	getJmdictFormsListSymbol,
+	getJmdictFormsSymbolTitle,
+	isJmdictFormsTable,
+} from "./jmdict";
 
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
@@ -208,7 +212,7 @@ export class PopupManager {
 												content.forEach((formItem) => {
 													const li =
 														ul.createEl("li");
-													this.renderStructuredContent(
+													this.renderFormsListItem(
 														li,
 														formItem,
 													);
@@ -241,6 +245,30 @@ export class PopupManager {
 				);
 			});
 		});
+	}
+
+	private renderFormsListItem(
+		container: HTMLElement,
+		content:
+			| string
+			| number
+			| StructuredContent
+			| (string | number | StructuredContent)[],
+	) {
+		if (typeof content === "string") {
+			const formsSymbol = getJmdictFormsListSymbol(content.trim());
+			if (formsSymbol) {
+				container.appendText(formsSymbol.text);
+				container.createSpan({
+					text: formsSymbol.symbolText,
+					cls: "popup-term-form-symbol",
+					attr: { "aria-label": formsSymbol.title },
+				});
+				return;
+			}
+		}
+
+		this.renderStructuredContent(container, content);
 	}
 
 	private renderExpressionWithFurigana(
@@ -299,7 +327,6 @@ export class PopupManager {
 
 		if (content.lang) attrs.lang = content.lang;
 		if ((insideTableHeader || content.tag === "th") && content.title) {
-			attrs.title = content.title;
 			attrs["aria-label"] = content.title;
 		}
 
@@ -375,7 +402,7 @@ export class PopupManager {
 		if (element.children.length > 0) return;
 
 		const symbol = element.innerText.trim();
-		const title = getJmdictFormsTableSymbolTitle(symbol);
+		const title = getJmdictFormsSymbolTitle(symbol);
 		if (!title) return;
 
 		element.setAttr("aria-label", title);
