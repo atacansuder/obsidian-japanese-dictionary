@@ -2,6 +2,11 @@ import { DictionaryManager } from "./manager";
 import { ProcessedTerm, StructuredContent } from "./types";
 import { isExternalLink } from "./utils";
 import { getFuriganaSegments } from "./furigana";
+import {
+	getJmdictFormsListSymbol,
+	getJmdictFormsSymbolTitle,
+	isJmdictFormsTable,
+} from "./jmdict";
 
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
@@ -207,7 +212,7 @@ export class PopupManager {
 												content.forEach((formItem) => {
 													const li =
 														ul.createEl("li");
-													this.renderStructuredContent(
+													this.renderFormsListItem(
 														li,
 														formItem,
 													);
@@ -242,6 +247,30 @@ export class PopupManager {
 		});
 	}
 
+	private renderFormsListItem(
+		container: HTMLElement,
+		content:
+			| string
+			| number
+			| StructuredContent
+			| (string | number | StructuredContent)[],
+	) {
+		if (typeof content === "string") {
+			const formsSymbol = getJmdictFormsListSymbol(content.trim());
+			if (formsSymbol) {
+				container.appendText(formsSymbol.text);
+				container.createSpan({
+					text: formsSymbol.symbolText,
+					cls: "popup-term-form-symbol",
+					attr: { "aria-label": formsSymbol.title },
+				});
+				return;
+			}
+		}
+
+		this.renderStructuredContent(container, content);
+	}
+
 	private renderExpressionWithFurigana(
 		container: HTMLElement,
 		expression: string,
@@ -270,6 +299,7 @@ export class PopupManager {
 			| StructuredContent
 			| (string | number | StructuredContent)[],
 		insideTableHeader = false,
+		insideJmdictFormsTable = false,
 	) {
 		if (typeof content === "string" || typeof content === "number") {
 			const text = String(content).trim();
@@ -285,12 +315,15 @@ export class PopupManager {
 					container,
 					item,
 					insideTableHeader,
+					insideJmdictFormsTable,
 				);
 			});
 			return;
 		}
 		const tagName = content.tag || "span";
 		const attrs: Record<string, string> = {};
+		const isInsideJmdictFormsTable =
+			insideJmdictFormsTable || isJmdictFormsTable(content);
 
 		if (content.lang) attrs.lang = content.lang;
 		if ((insideTableHeader || content.tag === "th") && content.title) {
@@ -324,10 +357,16 @@ export class PopupManager {
 						element,
 						content.content,
 						insideTableHeader || content.tag === "th",
+						isInsideJmdictFormsTable,
 					);
 				}
 
 				this.renderFormCellMarker(element, content);
+				this.addJmdictFormsTableSymbolTitle(
+					element,
+					content,
+					isInsideJmdictFormsTable,
+				);
 			},
 		);
 	}
@@ -352,6 +391,21 @@ export class PopupManager {
 		if (title) {
 			markerElement.setAttr("aria-label", title);
 		}
+	}
+
+	private addJmdictFormsTableSymbolTitle(
+		element: HTMLElement,
+		content: StructuredContent,
+		insideJmdictFormsTable: boolean,
+	) {
+		if (!insideJmdictFormsTable || content.tag !== "td") return;
+		if (element.children.length > 0) return;
+
+		const symbol = element.innerText.trim();
+		const title = getJmdictFormsSymbolTitle(symbol);
+		if (!title) return;
+
+		element.setAttr("aria-label", title);
 	}
 
 	private groupTermsByExpressionReading(
