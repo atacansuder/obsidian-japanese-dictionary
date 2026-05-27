@@ -6,6 +6,14 @@ import { getFuriganaSegments } from "./furigana";
 export class PopupManager {
 	private dictionaryManager: DictionaryManager;
 	private popupEl: HTMLElement | null = null;
+	private readonly formCellMarkers: Record<string, string> = {
+		"form-pri": "\u25b3",
+		"form-irr": "\u2715",
+		"form-out": "\u53e4",
+		"form-old": "\u65e7",
+		"form-rare": "\u25bd",
+		"form-valid": "\u25c7",
+	};
 
 	constructor(dictionaryManager: DictionaryManager) {
 		this.dictionaryManager = dictionaryManager;
@@ -258,7 +266,8 @@ export class PopupManager {
 			| string
 			| number
 			| StructuredContent
-			| (string | StructuredContent)[],
+			| (string | number | StructuredContent)[],
+		insideTableHeader = false,
 	) {
 		if (typeof content === "string" || typeof content === "number") {
 			const text = String(content).trim();
@@ -270,16 +279,26 @@ export class PopupManager {
 
 		if (Array.isArray(content)) {
 			content.forEach((item) => {
-				this.renderStructuredContent(container, item);
+				this.renderStructuredContent(
+					container,
+					item,
+					insideTableHeader,
+				);
 			});
 			return;
 		}
 		const tagName = content.tag || "span";
+		const attrs: Record<string, string> = {};
+
+		if (content.lang) attrs.lang = content.lang;
+		if ((insideTableHeader || content.tag === "th") && content.title) {
+			attrs.title = content.title;
+		}
 
 		container.createEl(
 			tagName as keyof HTMLElementTagNameMap,
 			{
-				attr: content.lang ? { lang: content.lang } : undefined,
+				attr: Object.keys(attrs).length > 0 ? attrs : undefined,
 				cls:
 					content.tag === "ul"
 						? "popup-term-list"
@@ -289,7 +308,7 @@ export class PopupManager {
 				href: isExternalLink(content.href) ? content.href : undefined,
 			},
 			(element) => {
-				if (content.content) {
+				if (content.content !== undefined && content.content !== null) {
 					// If it's a link without href, make it clickable to lookup
 					if (content.tag === "a" && !isExternalLink(content.href)) {
 						element.addEventListener("click", (e) => {
@@ -299,10 +318,38 @@ export class PopupManager {
 							);
 						});
 					}
-					this.renderStructuredContent(element, content.content);
+					this.renderStructuredContent(
+						element,
+						content.content,
+						insideTableHeader || content.tag === "th",
+					);
 				}
+
+				this.renderFormCellMarker(element, content);
 			},
 		);
+	}
+
+	private renderFormCellMarker(
+		element: HTMLElement,
+		content: StructuredContent,
+	) {
+		if (content.tag !== "td" || element.innerText.trim() !== "") return;
+
+		const markerClass = content.data?.class;
+		if (!markerClass) return;
+
+		const marker = this.formCellMarkers[markerClass];
+		if (!marker) return;
+
+		const markerElement =
+			element.querySelector<HTMLElement>("span") ?? element.createSpan();
+		markerElement.setText(marker);
+
+		const title = this.extractTitle(content.content);
+		if (title) {
+			markerElement.setAttr("title", title);
+		}
 	}
 
 	private groupTermsByExpressionReading(
@@ -337,8 +384,10 @@ export class PopupManager {
 			| string
 			| number
 			| StructuredContent
-			| (string | StructuredContent)[],
+			| (string | number | StructuredContent)[]
+			| undefined,
 	): string {
+		if (content === undefined) return "";
 		if (typeof content === "string") return content;
 		if (typeof content === "number") return String(content);
 		if (Array.isArray(content)) {
@@ -350,5 +399,33 @@ export class PopupManager {
 		if (content.tag === "rt" || content.tag === "rp") return "";
 		if (content.content) return this.extractTextContent(content.content);
 		return "";
+	}
+
+	private extractTitle(
+		content:
+			| string
+			| number
+			| StructuredContent
+			| (string | number | StructuredContent)[]
+			| undefined,
+	): string {
+		if (
+			content === undefined ||
+			typeof content === "string" ||
+			typeof content === "number"
+		) {
+			return "";
+		}
+
+		if (Array.isArray(content)) {
+			for (const item of content) {
+				const title = this.extractTitle(item);
+				if (title) return title;
+			}
+			return "";
+		}
+
+		if (content.title) return content.title;
+		return this.extractTitle(content.content);
 	}
 }
