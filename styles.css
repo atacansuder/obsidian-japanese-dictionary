@@ -34,7 +34,8 @@
 	.popup-term-definitions {
 		> li {
 			margin-bottom: var(--size-4-2);
-			ul {
+			ul,
+			ol {
 				padding-left: var(--size-4-4);
 			}
 		}

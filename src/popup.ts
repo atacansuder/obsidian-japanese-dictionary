@@ -147,9 +147,10 @@ export class PopupManager {
 									text: tag,
 									cls: "popup-tag",
 									attr: {
-										title: this.dictionaryManager.getTagDescription(
-											tag,
-										),
+										"aria-label":
+											this.dictionaryManager.getTagDescription(
+												tag,
+											),
 									},
 								});
 							});
@@ -185,9 +186,10 @@ export class PopupManager {
 															text: tag,
 															cls: "popup-tag",
 															attr: {
-																title: this.dictionaryManager.getTagDescription(
-																	tag,
-																),
+																"aria-label":
+																	this.dictionaryManager.getTagDescription(
+																		tag,
+																	),
 															},
 														},
 													);
@@ -292,7 +294,7 @@ export class PopupManager {
 
 		if (content.lang) attrs.lang = content.lang;
 		if ((insideTableHeader || content.tag === "th") && content.title) {
-			attrs.title = content.title;
+			attrs["aria-label"] = content.title;
 		}
 
 		container.createEl(
@@ -348,7 +350,7 @@ export class PopupManager {
 
 		const title = this.extractTitle(content.content);
 		if (title) {
-			markerElement.setAttr("title", title);
+			markerElement.setAttr("aria-label", title);
 		}
 	}
 
