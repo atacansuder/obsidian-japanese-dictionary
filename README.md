@@ -34,7 +34,7 @@ Before the plugin works, you must import a dictionary file. This plugin uses the
 
 1.  **Download a Dictionary:**
     - Visit [this link](https://yomitan.wiki/dictionaries/#japanese) and download one of the dictionaries.
-    - Recommended: [JMDict](https://github.com/yomidevs/jmdict-yomitan/releases) or [Jitendex](https://github.com/stephenmk/Jitendex/releases).
+    - Recommended: [Jitendex](https://github.com/stephenmk/Jitendex/releases) or [JMDict](https://github.com/yomidevs/jmdict-yomitan/releases).
     - Ensure the file is a `.zip` file (do not unzip it).
 
 2.  **Open Plugin Settings:**
