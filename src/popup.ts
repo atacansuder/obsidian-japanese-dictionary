@@ -60,16 +60,20 @@ export class PopupManager {
 	showPopup(rect: DOMRect, terms: ProcessedTerm[], win: Window) {
 		this.ensurePopupInWindow(win);
 		this.updatePopupContent(terms);
+		const popupEl = this.popupEl;
+		if (!popupEl) return;
 
 		// Render off-screen first so we can measure actual dimensions
 		// This is used to correctly position the popup so it does not overflow the viewport
-		this.popupEl!.style.visibility = "hidden";
-		this.popupEl!.style.top = "0px";
-		this.popupEl!.style.left = "0px";
-		this.popupEl?.show();
+		popupEl.setCssStyles({
+			visibility: "hidden",
+			top: "0px",
+			left: "0px",
+		});
+		popupEl.show();
 
-		const popupWidth = this.popupEl!.offsetWidth;
-		const popupHeight = this.popupEl!.offsetHeight;
+		const popupWidth = popupEl.offsetWidth;
+		const popupHeight = popupEl.offsetHeight;
 		const viewportWidth = win.innerWidth;
 		const viewportHeight = win.innerHeight;
 
@@ -85,9 +89,11 @@ export class PopupManager {
 		}
 		top = Math.max(0, top);
 
-		this.popupEl!.style.top = `${top}px`;
-		this.popupEl!.style.left = `${left}px`;
-		this.popupEl!.style.visibility = "";
+		popupEl.setCssStyles({
+			top: `${top}px`,
+			left: `${left}px`,
+			visibility: "",
+		});
 	}
 
 	hidePopup() {

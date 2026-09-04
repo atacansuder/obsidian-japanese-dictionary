@@ -33,9 +33,7 @@ export class Deinflector {
 	reasons: NormalizedReason[];
 
 	constructor() {
-		this.reasons = Deinflector.normalizeReasons(
-			DEINFLECT_DATA as unknown as Record<string, RawReason[]>
-		) as NormalizedReason[];
+		this.reasons = Deinflector.normalizeReasons(DEINFLECT_DATA);
 	}
 
 	/**
@@ -87,10 +85,12 @@ export class Deinflector {
 		return { term, rules, reasons };
 	}
 
-	private static normalizeReasons(reasons: Record<string, RawReason[]>) {
-		const normalizedReasons = [];
+	private static normalizeReasons(
+		reasons: Record<string, RawReason[]>,
+	): NormalizedReason[] {
+		const normalizedReasons: NormalizedReason[] = [];
 		for (const [reason, reasonInfo] of Object.entries(reasons)) {
-			const variants = [];
+			const variants: NormalizedVariant[] = [];
 			for (const { kanaIn, kanaOut, rulesIn, rulesOut } of reasonInfo) {
 				variants.push([
 					kanaIn,

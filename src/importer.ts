@@ -7,7 +7,6 @@ import {
 	RawTermEntry,
 	YomitanIndex,
 	ProcessedTerm,
-	RawDefinition,
 	RawTagEntry,
 	TagDefinition,
 } from "./types";
@@ -124,17 +123,18 @@ export class DictionaryImporter {
 			const tx = db.transaction("terms", "readwrite");
 			const termStore = tx.objectStore("terms");
 
-			const termsToAdd = rawTerms.map((entry) => {
-				const rawGlossary = entry.slice(5);
+			const termsToAdd = rawTerms.map<ProcessedTerm>((entry) => {
+				const [expression, reading, tags, rules, score, ...glossary] =
+					entry;
 				return {
-					expression: entry[0],
-					reading: entry[1],
-					tags: entry[2].split(" "),
-					rules: entry[3].split(" "),
-					score: entry[4],
-					glossary: rawGlossary as RawDefinition[],
+					expression,
+					reading,
+					tags: tags.split(" "),
+					rules: rules.split(" "),
+					score,
+					glossary,
 					dictionary: meta.title,
-				} as ProcessedTerm;
+				};
 			});
 
 			const promises = termsToAdd.map((term) => termStore.add(term));

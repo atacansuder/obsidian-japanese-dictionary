@@ -19,6 +19,35 @@ export const DEFAULT_SETTINGS: JapanesePopupDictionarySettings = {
 	isDictionaryOn: true,
 };
 
+// Obsidian 1.13 adds these definitions to PluginSettingTab. Keeping the
+// structural type local lets this dual-support build compile against the
+// 1.10 API while remaining compatible with the newer API at runtime.
+interface SettingDefinitionBaseCompat {
+	name: string;
+	desc?: string;
+	aliases?: string[];
+}
+
+interface SettingDefinitionControlCompat extends SettingDefinitionBaseCompat {
+	control:
+		| { type: "toggle"; key: "isDictionaryOn" }
+		| {
+				type: "dropdown";
+				key: "triggerKey";
+				options: Record<string, string>;
+		};
+	render?: never;
+}
+
+interface SettingDefinitionRenderCompat extends SettingDefinitionBaseCompat {
+	control?: never;
+	render: (setting: Setting) => void | (() => void);
+}
+
+type SettingDefinitionCompat =
+	| SettingDefinitionControlCompat
+	| SettingDefinitionRenderCompat;
+
 class ConfirmationModal extends Modal {
 	title: string;
 	message: string;
@@ -75,11 +104,50 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 		this.plugin = plugin;
 	}
 
-	display() {
-		void this.renderSettings();
+	getSettingDefinitions(): SettingDefinitionCompat[] {
+		return [
+			{
+				name: "Dictionary toggle",
+				desc: "Enable or disable the dictionary feature.",
+				control: {
+					type: "toggle",
+					key: "isDictionaryOn",
+				},
+			},
+			{
+				name: "Hover modifier key",
+				desc: "Hold this key while hovering to trigger.",
+				control: {
+					type: "dropdown",
+					key: "triggerKey",
+					options: {
+						[TriggerKeys.None]: "None (always active)",
+						[TriggerKeys.Ctrl]: "Ctrl",
+						[TriggerKeys.Alt]: "Alt",
+						[TriggerKeys.Shift]: "Shift",
+					},
+				},
+			},
+			{
+				name: "Dictionary management",
+				desc: "Import or delete the dictionary database.",
+				aliases: ["Import dictionary", "Delete dictionary"],
+				render: (setting) => {
+					let disposed = false;
+					void this.renderDictionarySetting(
+						setting,
+						() => disposed,
+					);
+					return () => {
+						disposed = true;
+					};
+				},
+			},
+		];
 	}
 
-	private async renderSettings(): Promise<void> {
+	// Fallback for Obsidian versions before 1.13.0.
+	display() {
 		const { containerEl } = this;
 		containerEl.empty();
 
@@ -111,20 +179,34 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 					});
 			});
 
+		const dictionarySetting = new Setting(containerEl)
+			.setName("Dictionary management")
+			.setDesc("Loading dictionary information...");
+		void this.renderDictionarySetting(dictionarySetting);
+	}
+
+	private async renderDictionarySetting(
+		setting: Setting,
+		isDisposed: () => boolean = () => false,
+	): Promise<void> {
 		const stats = await this.plugin.dictionaryManager.getDictionaryStats();
+		if (isDisposed()) return;
+
+		setting.clear();
 
 		if (stats) {
-			const desc = activeDocument.createDocumentFragment();
-			desc.append(
-				"Remove the dictionary database to free up space or import a different one.",
-			);
-			desc.createEl("br");
-			desc.createEl("br");
-			desc.createDiv({ text: `Title: ${stats.title}` });
-			desc.createDiv({ text: `Total terms: ${stats.count}` });
-			desc.createDiv({ text: `Size: ${stats.size}` });
+			const desc = createFragment((fragment) => {
+				fragment.append(
+					"Remove the dictionary database to free up space or import a different one.",
+				);
+				fragment.createEl("br");
+				fragment.createEl("br");
+				fragment.createDiv({ text: `Title: ${stats.title}` });
+				fragment.createDiv({ text: `Total terms: ${stats.count}` });
+				fragment.createDiv({ text: `Size: ${stats.size}` });
+			});
 
-			new Setting(containerEl)
+			setting
 				.setName("Delete dictionary")
 				.setDesc(desc)
 				.addButton((button) => {
@@ -142,49 +224,49 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 									new Notice(
 										"Dictionary deleted successfully.",
 									);
-
-									void this.display();
+									if (!isDisposed()) this.refreshSettings();
 								},
 							).open();
 						});
 				});
 		} else {
-			const importDesc = activeDocument.createDocumentFragment();
-			importDesc.append(
-				"Required to enable lookups. Follow these steps:",
-			);
-			// Add spacing
-			importDesc.createEl("br");
-			importDesc.createEl("br");
-			// Breaking this string to bypass Obsidian review bot's false positive sentence case detection.
-			importDesc.createEl("a", {
-				text:
-					"1. Download a " +
-					"Yomitan" +
-					" format " +
-					"Japanese" +
-					" dictionary.",
-				href: "https://yomitan.wiki/dictionaries/#japanese",
-			});
-			importDesc.createEl("br");
-			importDesc.createEl("small", {
-				text: "(recommended: " + "JMdict" + " or " + "Jitendex" + ")",
-			});
-			importDesc.createDiv({
-				text: "2. Click the folder icon to open the plugin location.",
-			});
-			importDesc.createDiv({
-				text: "3. Place your dictionary .zip file you downloaded inside. Make sure that there is only one .zip file in the folder.",
-			});
-			importDesc.createDiv({
-				text: "4. Click the '" + "Import" + "' button.",
-			});
-			importDesc.createEl("br");
-			importDesc.createDiv({
-				text: "Feel free to delete the .zip file after importing.",
+			const importDesc = createFragment((fragment) => {
+				fragment.append(
+					"Required to enable lookups. Follow these steps:",
+				);
+				fragment.createEl("br");
+				fragment.createEl("br");
+				// Breaking this string to bypass Obsidian review bot's false positive sentence case detection.
+				fragment.createEl("a", {
+					text:
+						"1. Download a " +
+						"Yomitan" +
+						" format " +
+						"Japanese" +
+						" dictionary.",
+					href: "https://yomitan.wiki/dictionaries/#japanese",
+				});
+				fragment.createEl("br");
+				fragment.createEl("small", {
+					text:
+						"(recommended: " + "JMdict" + " or " + "Jitendex" + ")",
+				});
+				fragment.createDiv({
+					text: "2. Click the folder icon to open the plugin location.",
+				});
+				fragment.createDiv({
+					text: "3. Place your dictionary .zip file you downloaded inside. Make sure that there is only one .zip file in the folder.",
+				});
+				fragment.createDiv({
+					text: "4. Click the '" + "Import" + "' button.",
+				});
+				fragment.createEl("br");
+				fragment.createDiv({
+					text: "Feel free to delete the .zip file after importing.",
+				});
 			});
 
-			new Setting(containerEl)
+			setting
 				.setName("Import dictionary")
 				.setDesc(importDesc)
 				.addExtraButton((button) => {
@@ -203,7 +285,8 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 							button.setDisabled(true);
 
 							let progressBar: ProgressBarComponent | null = null;
-							new Setting(containerEl)
+							setting
+								.clear()
 								.setName("Import progress")
 								.addProgressBar((pb) => {
 									progressBar = pb;
@@ -217,9 +300,17 @@ export class JapanesePopupDictionarySettingTab extends PluginSettingTab {
 									}
 								},
 							);
-							void this.display();
+							if (!isDisposed()) this.refreshSettings();
 						});
 				});
+		}
+	}
+
+	private refreshSettings() {
+		if ("update" in this && typeof this.update === "function") {
+			this.update();
+		} else {
+			this.display();
 		}
 	}
 }

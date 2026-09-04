@@ -58,15 +58,15 @@ export class JapaneseScanner {
 			}
 		}
 
-		if (this.timer) {
-			clearTimeout(this.timer);
+		if (this.timer !== null) {
+			window.clearTimeout(this.timer);
 		}
 
 		// Capture the source window from the event. evt.view is the Window
 		// that dispatched the event, which may be a secondary window.
-		const win = (evt.view ?? window) as Window;
+		const win = evt.view ?? window;
 
-		this.timer = activeWindow.setTimeout(() => {
+		this.timer = window.setTimeout(() => {
 			this.performScan(evt, win);
 		}, 100);
 	};
@@ -77,8 +77,8 @@ export class JapaneseScanner {
 			return;
 		}
 
-		let node = caretPos.node;
-		let offset = caretPos.offset;
+		const node = caretPos.node;
+		const offset = caretPos.offset;
 
 		if (this.currentHighlightRange) {
 			const isAtEndBoundary =
@@ -237,8 +237,8 @@ export class JapaneseScanner {
 	closePopup(): boolean {
 		if (!this.popupManager.isOpen()) return false;
 
-		if (this.timer) {
-			clearTimeout(this.timer);
+		if (this.timer !== null) {
+			window.clearTimeout(this.timer);
 			this.timer = null;
 		}
 
@@ -251,26 +251,8 @@ export class JapaneseScanner {
 		y: number,
 		win: Window,
 	): { node: Node; offset: number } | null {
-		const doc = win.document;
-
-		// Standard API
-		if (doc.caretPositionFromPoint) {
-			const position = doc.caretPositionFromPoint(
-				x,
-				y,
-			) as CaretPosition | null;
-			if (!position) return null;
-			return { node: position.offsetNode, offset: position.offset };
-		}
-
-		// Chromium / Electron API (Used by Obsidian). The standard API should
-		// work but leaving it here just in case.
-		if (doc.caretRangeFromPoint) {
-			const range = doc.caretRangeFromPoint(x, y);
-			if (!range) return null;
-			return { node: range.startContainer, offset: range.startOffset };
-		}
-
-		return null;
+		const position = win.document.caretPositionFromPoint(x, y);
+		if (!position) return null;
+		return { node: position.offsetNode, offset: position.offset };
 	}
 }
