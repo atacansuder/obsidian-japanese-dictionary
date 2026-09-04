@@ -36,6 +36,13 @@ export default class JapanesePopupDictionary extends Plugin {
 		this.popupManager = new PopupManager(this.dictionaryManager);
 		this.scanner = new JapaneseScanner(this, this.popupManager);
 
+		const escapeHandler = this.app.scope.register([], "Escape", () => {
+			if (this.scanner.closePopup()) {
+				return false;
+			}
+		});
+		this.register(() => this.app.scope.unregister(escapeHandler));
+
 		this.registerWindowEvents(activeWindow);
 
 		this.registerEvent(

@@ -234,6 +234,18 @@ export class JapaneseScanner {
 		this.clearHighlight();
 	};
 
+	closePopup(): boolean {
+		if (!this.popupManager.isOpen()) return false;
+
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.timer = null;
+		}
+
+		this.clearHighlight();
+		return true;
+	}
+
 	private getCaretPosition(
 		x: number,
 		y: number,
