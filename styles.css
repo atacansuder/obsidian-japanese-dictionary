@@ -61,16 +61,19 @@
 			text-align: center;
 
 			> span {
-				clip-path: circle();
-				display: inline-block;
+				align-items: center;
+				border-radius: 50%;
+				display: inline-flex;
 				font-weight: var(--font-semibold);
-				min-width: var(--size-4-2);
-				padding: 0 var(--size-4-1);
+				height: var(--size-4-5);
+				justify-content: center;
+				padding: 0;
+				width: var(--size-4-5);
 			}
 		}
 
 		table .popup-term-form-special {
-			color: var(--text-error, --color-red);
+			color: var(--text-error);
 		}
 
 		table .popup-term-form-pri > span {
@@ -78,7 +81,7 @@
 				var(--color-green) 50%,
 				var(--background-primary) 100%
 			);
-			color: --color-white;
+			color: var(--text-on-accent);
 		}
 
 		table .popup-term-form-irr > span {
@@ -86,7 +89,7 @@
 				var(--color-red) 50%,
 				var(--background-primary) 100%
 			);
-			color: --color-white;
+			color: var(--text-on-accent);
 		}
 
 		table .popup-term-form-out > span,
@@ -95,7 +98,7 @@
 				var(--color-blue) 50%,
 				var(--background-primary) 100%
 			);
-			color: --color-white;
+			color: var(--text-on-accent);
 		}
 
 		table .popup-term-form-rare > span {
@@ -103,7 +106,7 @@
 				var(--color-purple) 50%,
 				var(--background-primary) 100%
 			);
-			color: --color-white;
+			color: var(--text-on-accent);
 		}
 
 		table .popup-term-form-valid > span {
@@ -111,7 +114,7 @@
 				var(--text-normal) 50%,
 				var(--background-primary) 100%
 			);
-			color: var(--background-primary, --color-white);
+			color: var(--background-primary);
 		}
 	}
 
